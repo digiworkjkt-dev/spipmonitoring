@@ -1,0 +1,1972 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Monitoring Kelengkapan Dokumen - SPIP 2026 (14 Jul 2026, 20:55)</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:'Segoe UI',system-ui,-apple-system,sans-serif; background:#f0f2f5; color:#1f2937; line-height:1.6; }
+
+.nav { position:sticky; top:0; z-index:100; background:rgba(255,255,255,0.95); backdrop-filter:blur(10px); border-bottom:1px solid #e5e7eb; padding:10px 40px; display:flex; align-items:center; gap:24px; }
+.nav-brand { font-weight:700; font-size:14px; color:#7c2d12; white-space:nowrap; }
+.nav-links { display:flex; gap:4px; flex-wrap:wrap; flex:1; }
+.nav-links a { text-decoration:none; color:#6b7280; font-size:13px; padding:6px 14px; border-radius:6px; transition:all 0.2s; }
+.nav-links a:hover { background:#fef3c7; color:#92400e; }
+.nav-time { font-size:12px; color:#9ca3af; font-family:monospace; }
+
+.container { max-width:1200px; margin:0 auto; padding:0 40px; }
+.section { padding:40px 0; border-bottom:1px solid #e5e7eb; }
+.section:last-child { border-bottom:none; }
+.section-title { font-size:24px; font-weight:700; margin-bottom:8px; color:#1f2937; display:flex; align-items:center; gap:12px; }
+.section-num { font-size:28px; }
+.section-subtitle { font-size:14px; color:#6b7280; margin-bottom:24px; }
+
+.hero { background:linear-gradient(135deg,#7c2d12,#dc2626,#f59e0b); color:white; padding:40px; border-radius:0 0 24px 24px; margin-bottom:0; }
+.hero h1 { font-size:26px; margin-bottom:8px; }
+.hero p { font-size:14px; opacity:0.9; }
+
+.summary-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:16px; margin-bottom:24px; }
+.summary-card { color:white; border-radius:14px; padding:20px; text-align:center; }
+.summary-card.green { background:linear-gradient(135deg,#059669,#10b981); }
+.summary-card.yellow { background:linear-gradient(135deg,#d97706,#f59e0b); }
+.summary-card.red { background:linear-gradient(135deg,#dc2626,#ef4444); }
+.summary-card.blue { background:linear-gradient(135deg,#0284c7,#3b82f6); }
+.summary-card.gray { background:linear-gradient(135deg,#4b5563,#6b7280); }
+.summary-card.overall { background:linear-gradient(135deg,#7c2d12,#dc2626); }
+.summary-card .title { font-size:13px; opacity:0.9; margin-bottom:6px; }
+.summary-card .big-number { font-size:36px; font-weight:700; }
+.summary-card .unit { font-size:14px; opacity:0.7; }
+.summary-card .sub { font-size:11px; opacity:0.8; margin-top:4px; }
+
+.card { background:white; border-radius:14px; padding:24px; box-shadow:0 2px 8px rgba(0,0,0,0.06); border:1px solid #f3f4f6; margin-bottom:20px; }
+.card-title { font-size:17px; font-weight:700; margin-bottom:16px; color:#1f2937; }
+
+.progress-container { margin-bottom:12px; }
+.progress-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:4px; }
+.progress-label { font-size:13px; font-weight:600; color:#374151; display:flex; align-items:center; gap:6px; }
+.progress-value { font-size:13px; font-weight:700; }
+.progress-bar { height:20px; background:#f3f4f6; border-radius:10px; overflow:hidden; }
+.progress-fill { height:100%; border-radius:10px; display:flex; align-items:center; justify-content:flex-end; padding-right:10px; font-size:11px; font-weight:700; color:white; transition:width 0.6s; min-width:30px; }
+.progress-green { background:linear-gradient(90deg,#059669,#10b981); }
+.progress-yellow { background:linear-gradient(90deg,#d97706,#f59e0b); }
+.progress-red { background:linear-gradient(90deg,#dc2626,#ef4444); }
+
+.kode-badge { display:inline-block; padding:3px 10px; border-radius:6px; font-size:12px; font-weight:700; color:white; min-width:40px; text-align:center; }
+
+.subunsur-progress-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(320px,1fr)); gap:12px; }
+.su-progress-item { background:#f9fafb; border-radius:8px; padding:12px; border-left:4px solid; cursor:pointer; transition:all 0.2s; }
+.su-progress-item:hover { background:#f3f4f6; transform:translateX(2px); }
+.su-progress-header { display:flex; align-items:center; gap:8px; margin-bottom:6px; }
+.su-name { font-size:12px; font-weight:600; color:#374151; flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.su-pct { font-size:14px; font-weight:700; }
+.su-stats { font-size:11px; color:#6b7280; margin-top:4px; }
+
+.filter-bar { display:flex; gap:12px; align-items:center; flex-wrap:wrap; margin-bottom:20px; padding:16px; background:white; border-radius:12px; border:1px solid #e5e7eb; position:sticky; top:60px; z-index:50; box-shadow:0 2px 8px rgba(0,0,0,0.04); }
+.filter-select { padding:8px 14px; border:1px solid #d1d5db; border-radius:8px; font-size:13px; background:white; cursor:pointer; }
+.filter-select:focus { outline:2px solid #f59e0b; }
+.filter-label { font-size:12px; font-weight:600; color:#374151; }
+.filter-search { flex:1; min-width:200px; padding:8px 14px; border:1px solid #d1d5db; border-radius:8px; font-size:13px; }
+.filter-summary { margin-top:12px; font-size:13px; color:#6b7280; text-align:center; }
+
+.table-container { overflow-x:auto; border-radius:12px; border:1px solid #e5e7eb; background:white; }
+table.checklist { width:100%; border-collapse:collapse; font-size:13px; }
+table.checklist th { background:#1f2937; color:white; padding:10px 12px; text-align:left; font-weight:600; font-size:11px; text-transform:uppercase; letter-spacing:0.5px; position:sticky; top:0; z-index:10; }
+table.checklist th.grade-col { text-align:center; width:50px; }
+table.checklist td { padding:8px 12px; border-bottom:1px solid #f3f4f6; }
+table.checklist tr:hover { background:#f9fafb; }
+table.checklist tr.hidden { display:none; }
+.kk-cell { font-weight:700; font-size:12px; color:#6b7280; text-align:center; }
+.param-text { color:#4b5563; max-width:350px; }
+.grade-cell { text-align:center; font-weight:700; cursor:pointer; position:relative; }
+.grade-cell.yes { background:#d1fae5; color:#065f46; }
+.grade-cell.no { background:#fee2e2; color:#991b1b; }
+.grade-cell.partial { background:#fef3c7; color:#92400e; }
+.grade-cell.notfound { background:#f3f4f6; color:#9ca3af; }
+.grade-cell .file-count { display:block; font-size:9px; font-weight:400; opacity:0.7; }
+.status-yes { color:#059669; font-weight:700; font-size:12px; }
+.status-no { color:#ef4444; font-weight:700; font-size:12px; }
+.status-partial { color:#d97706; font-weight:700; font-size:12px; }
+.date-cell { font-size:12px; color:#6b7280; }
+
+.detail-card { background:white; border-radius:12px; margin-bottom:16px; overflow:hidden; border:1px solid #e5e7eb; }
+.detail-header { padding:12px 16px; border-left:4px solid; background:#f9fafb; }
+.detail-title { font-size:14px; font-weight:700; margin-bottom:4px; display:flex; align-items:center; gap:8px; }
+.detail-meta { font-size:12px; color:#6b7280; }
+.detail-table { width:100%; border-collapse:collapse; font-size:12px; }
+.detail-table th { background:#f3f4f6; padding:8px 12px; text-align:left; font-weight:600; font-size:11px; color:#6b7280; }
+.detail-table td { padding:8px 12px; border-bottom:1px solid #f9fafb; }
+.type-badge { padding:2px 8px; border-radius:4px; font-size:10px; font-weight:700; }
+
+.callout { padding:14px 18px; border-radius:8px; margin:12px 0; font-size:13px; }
+.callout-warning { background:#fff7ed; border-left:4px solid #f59e0b; color:#92400e; }
+
+.footer { text-align:center; padding:32px 20px; background:#1f2937; color:#9ca3af; font-size:12px; }
+.footer strong { color:#e5e7eb; }
+
+@media (max-width:768px) {
+  .nav { padding:8px 16px; flex-direction:column; gap:6px; }
+  .container { padding:0 12px; }
+  .hero { padding:24px 16px; }
+  .filter-bar { position:static; }
+  table.checklist { font-size:11px; }
+  table.checklist td { padding:6px 8px; }
+}
+
+</style>
+</head>
+<body>
+<nav class="nav">
+<div class="nav-brand">📊 Monitoring Dokumen SPIP 2026</div>
+<div class="nav-links">
+<a href="#dashboard">📊 Dashboard</a>
+<a href="#checklist">📋 Checklist</a>
+<a href="#detail">📁 Detail</a>
+</div>
+<div class="nav-time">⏱ 14 Jul 2026, 20:55</div>
+</nav>
+<div class="hero">
+<h1>📊 Dashboard Monitoring Kelengkapan Dokumen</h1>
+<p>SPIP BMKG 2026 — Sistem Pengendalian Internal Pemerintah<br>
+Periode: 01 Juli 2025 – 30 Juni 2026 | Update: 14 Jul 2026, 20:55</p>
+</div>
+<div class="container">
+<div class="section" id="dashboard">
+<h2 class="section-title"><span class="section-num">📊</span> Dashboard Summary</h2>
+<div class="summary-grid">
+<div class="summary-card green"><div class="title">✅ Lengkap</div><div class="big-number">0<span class="unit"> / 490</span></div><div class="sub">0.0% dari total</div></div>
+<div class="summary-card yellow"><div class="title">⚠️ Parsial</div><div class="big-number">0<span class="unit"> / 490</span></div><div class="sub">0.0% perlu ditinjau</div></div>
+<div class="summary-card red"><div class="title">❌ Kosong</div><div class="big-number">370<span class="unit"> / 490</span></div><div class="sub">75.5% belum ada dokumen</div></div>
+<div class="summary-card gray"><div class="title">🔍 Not Found</div><div class="big-number">120<span class="unit"> / 490</span></div><div class="sub">24.5% folder tidak ditemukan</div></div>
+<div class="summary-card blue"><div class="title">📄 Total Files</div><div class="big-number">0</div><div class="sub">dokumen terupload</div></div>
+<div class="summary-card overall"><div class="title">📈 Kelengkapan</div><div class="big-number">0.0%</div><div class="sub">overall progress</div></div>
+</div>
+<div class="card">
+<h3 class="card-title">📈 Progress Kelengkapan per KK</h3>
+<div class="progress-container">
+<div class="progress-header"><span class="progress-label">KK 3.1 — T1 Efektivitas dan Efisiensi</span><span class="progress-value" style="color:#ef4444;">0.0% (0/215)</span></div>
+<div class="progress-bar"><div class="progress-fill progress-red" style="width:0.0%;">0.0%</div></div>
+</div>
+<div class="progress-container">
+<div class="progress-header"><span class="progress-label">KK 3.4 — T4 Ketaatan pada Peraturan</span><span class="progress-value" style="color:#ef4444;">0.0% (0/275)</span></div>
+<div class="progress-bar"><div class="progress-fill progress-red" style="width:0.0%;">0.0%</div></div>
+</div>
+</div>
+<div class="card">
+<h3 class="card-title">📊 Kelengkapan per Unsur</h3>
+<h4 style="margin:16px 0 8px; color:#374151;">KK 3.1</h4>
+<div class="progress-container">
+<div class="progress-header"><span class="progress-label"><span class="kode-badge" style="background:#3b82f6;font-size:10px;">1</span> Lingkungan Pengendalian</span><span class="progress-value" style="color:#ef4444;">0.0% (0/70)</span></div>
+<div class="progress-bar"><div class="progress-fill progress-red" style="width:0.0%;">0.0%</div></div>
+</div>
+<div class="progress-container">
+<div class="progress-header"><span class="progress-label"><span class="kode-badge" style="background:#f59e0b;font-size:10px;">2</span> Penilaian Risiko</span><span class="progress-value" style="color:#ef4444;">0.0% (0/40)</span></div>
+<div class="progress-bar"><div class="progress-fill progress-red" style="width:0.0%;">0.0%</div></div>
+</div>
+<div class="progress-container">
+<div class="progress-header"><span class="progress-label"><span class="kode-badge" style="background:#10b981;font-size:10px;">3</span> Kegiatan Pengendalian</span><span class="progress-value" style="color:#ef4444;">0.0% (0/55)</span></div>
+<div class="progress-bar"><div class="progress-fill progress-red" style="width:0.0%;">0.0%</div></div>
+</div>
+<div class="progress-container">
+<div class="progress-header"><span class="progress-label"><span class="kode-badge" style="background:#8b5cf6;font-size:10px;">4</span> Informasi dan Komunikasi</span><span class="progress-value" style="color:#ef4444;">0.0% (0/25)</span></div>
+<div class="progress-bar"><div class="progress-fill progress-red" style="width:0.0%;">0.0%</div></div>
+</div>
+<div class="progress-container">
+<div class="progress-header"><span class="progress-label"><span class="kode-badge" style="background:#ef4444;font-size:10px;">5</span> Pemantauan</span><span class="progress-value" style="color:#ef4444;">0.0% (0/25)</span></div>
+<div class="progress-bar"><div class="progress-fill progress-red" style="width:0.0%;">0.0%</div></div>
+</div>
+<h4 style="margin:16px 0 8px; color:#374151;">KK 3.4</h4>
+<div class="progress-container">
+<div class="progress-header"><span class="progress-label"><span class="kode-badge" style="background:#3b82f6;font-size:10px;">1</span> Lingkungan Pengendalian</span><span class="progress-value" style="color:#ef4444;">0.0% (0/120)</span></div>
+<div class="progress-bar"><div class="progress-fill progress-red" style="width:0.0%;">0.0%</div></div>
+</div>
+<div class="progress-container">
+<div class="progress-header"><span class="progress-label"><span class="kode-badge" style="background:#f59e0b;font-size:10px;">2</span> Penilaian Risiko</span><span class="progress-value" style="color:#ef4444;">0.0% (0/45)</span></div>
+<div class="progress-bar"><div class="progress-fill progress-red" style="width:0.0%;">0.0%</div></div>
+</div>
+<div class="progress-container">
+<div class="progress-header"><span class="progress-label"><span class="kode-badge" style="background:#10b981;font-size:10px;">3</span> Kegiatan Pengendalian</span><span class="progress-value" style="color:#ef4444;">0.0% (0/55)</span></div>
+<div class="progress-bar"><div class="progress-fill progress-red" style="width:0.0%;">0.0%</div></div>
+</div>
+<div class="progress-container">
+<div class="progress-header"><span class="progress-label"><span class="kode-badge" style="background:#8b5cf6;font-size:10px;">4</span> Informasi dan Komunikasi</span><span class="progress-value" style="color:#ef4444;">0.0% (0/30)</span></div>
+<div class="progress-bar"><div class="progress-fill progress-red" style="width:0.0%;">0.0%</div></div>
+</div>
+<div class="progress-container">
+<div class="progress-header"><span class="progress-label"><span class="kode-badge" style="background:#ef4444;font-size:10px;">5</span> Pemantauan</span><span class="progress-value" style="color:#ef4444;">0.0% (0/25)</span></div>
+<div class="progress-bar"><div class="progress-fill progress-red" style="width:0.0%;">0.0%</div></div>
+</div>
+</div>
+<div class="card">
+<h3 class="card-title">📋 Kelengkapan per Subunsur</h3>
+<div class="subunsur-progress-grid">
+<div class="su-progress-item" style="border-left-color:#3b82f6;" onclick="toggleSubunsur(this,'3.1','1.1')">
+<div class="su-progress-header">
+<span class="kode-badge" style="background:#3b82f6;">1.1</span>
+<span class="su-name">Penegakan Integritas dan Nilai Etika</span>
+<span class="su-pct" style="color:#ef4444;">0.0%</span>
+</div>
+<div class="progress-bar" style="height:8px;border-radius:4px;"><div class="progress-fill progress-red" style="width:0.0%;border-radius:4px;"></div></div>
+<div class="su-stats">✓ 0 · ⚠ 0 · ✗ 0 · 🔍 5 · 0/5</div>
+</div>
+<div class="su-progress-item" style="border-left-color:#3b82f6;" onclick="toggleSubunsur(this,'3.1','1.2')">
+<div class="su-progress-header">
+<span class="kode-badge" style="background:#3b82f6;">1.2</span>
+<span class="su-name">Komitmen terhadap Kompetensi</span>
+<span class="su-pct" style="color:#ef4444;">0.0%</span>
+</div>
+<div class="progress-bar" style="height:8px;border-radius:4px;"><div class="progress-fill progress-red" style="width:0.0%;border-radius:4px;"></div></div>
+<div class="su-stats">✓ 0 · ⚠ 0 · ✗ 5 · 0/5</div>
+</div>
+<div class="su-progress-item" style="border-left-color:#3b82f6;" onclick="toggleSubunsur(this,'3.1','1.3')">
+<div class="su-progress-header">
+<span class="kode-badge" style="background:#3b82f6;">1.3</span>
+<span class="su-name">Kepemimpinan yang Kondusif</span>
+<span class="su-pct" style="color:#ef4444;">0.0%</span>
+</div>
+<div class="progress-bar" style="height:8px;border-radius:4px;"><div class="progress-fill progress-red" style="width:0.0%;border-radius:4px;"></div></div>
+<div class="su-stats">✓ 0 · ⚠ 0 · ✗ 10 · 🔍 10 · 0/20</div>
+</div>
+<div class="su-progress-item" style="border-left-color:#3b82f6;" onclick="toggleSubunsur(this,'3.1','1.4')">
+<div class="su-progress-header">
+<span class="kode-badge" style="background:#3b82f6;">1.4</span>
+<span class="su-name">Struktur Organisasi Sesuai Kebutuhan</span>
+<span class="su-pct" style="color:#ef4444;">0.0%</span>
+</div>
+<div class="progress-bar" style="height:8px;border-radius:4px;"><div class="progress-fill progress-red" style="width:0.0%;border-radius:4px;"></div></div>
+<div class="su-stats">✓ 0 · ⚠ 0 · ✗ 0 · 🔍 5 · 0/5</div>
+</div>
+<div class="su-progress-item" style="border-left-color:#3b82f6;" onclick="toggleSubunsur(this,'3.1','1.5')">
+<div class="su-progress-header">
+<span class="kode-badge" style="background:#3b82f6;">1.5</span>
+<span class="su-name">Pendelegasian Wewenang dan Tanggung Jawab yang Tepat</span>
+<span class="su-pct" style="color:#ef4444;">0.0%</span>
+</div>
+<div class="progress-bar" style="height:8px;border-radius:4px;"><div class="progress-fill progress-red" style="width:0.0%;border-radius:4px;"></div></div>
+<div class="su-stats">✓ 0 · ⚠ 0 · ✗ 0 · 🔍 5 · 0/5</div>
+</div>
+<div class="su-progress-item" style="border-left-color:#3b82f6;" onclick="toggleSubunsur(this,'3.1','1.6')">
+<div class="su-progress-header">
+<span class="kode-badge" style="background:#3b82f6;">1.6</span>
+<span class="su-name">Penyusunan dan Penerapan Kebijakan yang Sehat tentang Pembin</span>
+<span class="su-pct" style="color:#ef4444;">0.0%</span>
+</div>
+<div class="progress-bar" style="height:8px;border-radius:4px;"><div class="progress-fill progress-red" style="width:0.0%;border-radius:4px;"></div></div>
+<div class="su-stats">✓ 0 · ⚠ 0 · ✗ 5 · 🔍 10 · 0/15</div>
+</div>
+<div class="su-progress-item" style="border-left-color:#3b82f6;" onclick="toggleSubunsur(this,'3.1','1.7')">
+<div class="su-progress-header">
+<span class="kode-badge" style="background:#3b82f6;">1.7</span>
+<span class="su-name">Perwujudan Peran APIP yang Efektf</span>
+<span class="su-pct" style="color:#ef4444;">0.0%</span>
+</div>
+<div class="progress-bar" style="height:8px;border-radius:4px;"><div class="progress-fill progress-red" style="width:0.0%;border-radius:4px;"></div></div>
+<div class="su-stats">✓ 0 · ⚠ 0 · ✗ 0 · 🔍 5 · 0/5</div>
+</div>
+<div class="su-progress-item" style="border-left-color:#3b82f6;" onclick="toggleSubunsur(this,'3.1','1.8')">
+<div class="su-progress-header">
+<span class="kode-badge" style="background:#3b82f6;">1.8</span>
+<span class="su-name">Hubungan Kerja yang Baik dengan Instansi Pemerintah Terkait</span>
+<span class="su-pct" style="color:#ef4444;">0.0%</span>
+</div>
+<div class="progress-bar" style="height:8px;border-radius:4px;"><div class="progress-fill progress-red" style="width:0.0%;border-radius:4px;"></div></div>
+<div class="su-stats">✓ 0 · ⚠ 0 · ✗ 0 · 🔍 10 · 0/10</div>
+</div>
+<div class="su-progress-item" style="border-left-color:#f59e0b;" onclick="toggleSubunsur(this,'3.1','2.1')">
+<div class="su-progress-header">
+<span class="kode-badge" style="background:#f59e0b;">2.1</span>
+<span class="su-name">Identifikasi Risiko</span>
+<span class="su-pct" style="color:#ef4444;">0.0%</span>
+</div>
+<div class="progress-bar" style="height:8px;border-radius:4px;"><div class="progress-fill progress-red" style="width:0.0%;border-radius:4px;"></div></div>
+<div class="su-stats">✓ 0 · ⚠ 0 · ✗ 15 · 0/15</div>
+</div>
+<div class="su-progress-item" style="border-left-color:#f59e0b;" onclick="toggleSubunsur(this,'3.1','2.2')">
+<div class="su-progress-header">
+<span class="kode-badge" style="background:#f59e0b;">2.2</span>
+<span class="su-name">Analisis Risiko</span>
+<span class="su-pct" style="color:#ef4444;">0.0%</span>
+</div>
+<div class="progress-bar" style="height:8px;border-radius:4px;"><div class="progress-fill progress-red" style="width:0.0%;border-radius:4px;"></div></div>
+<div class="su-stats">✓ 0 · ⚠ 0 · ✗ 25 · 0/25</div>
+</div>
+<div class="su-progress-item" style="border-left-color:#10b981;" onclick="toggleSubunsur(this,'3.1','3.10')">
+<div class="su-progress-header">
+<span class="kode-badge" style="background:#10b981;">3.10</span>
+<span class="su-name">Akuntabilitas terhadap Sumber Daya dan Pencatatannya</span>
+<span class="su-pct" style="color:#ef4444;">0.0%</span>
+</div>
+<div class="progress-bar" style="height:8px;border-radius:4px;"><div class="progress-fill progress-red" style="width:0.0%;border-radius:4px;"></div></div>
+<div class="su-stats">✓ 0 · ⚠ 0 · ✗ 0 · 🔍 5 · 0/5</div>
+</div>
+<div class="su-progress-item" style="border-left-color:#10b981;" onclick="toggleSubunsur(this,'3.1','3.11')">
+<div class="su-progress-header">
+<span class="kode-badge" style="background:#10b981;">3.11</span>
+<span class="su-name">Dokumentasi yang Baik atas SPI serta Transaksi dan Kejadian </span>
+<span class="su-pct" style="color:#ef4444;">0.0%</span>
+</div>
+<div class="progress-bar" style="height:8px;border-radius:4px;"><div class="progress-fill progress-red" style="width:0.0%;border-radius:4px;"></div></div>
+<div class="su-stats">✓ 0 · ⚠ 0 · ✗ 0 · 🔍 5 · 0/5</div>
+</div>
+<div class="su-progress-item" style="border-left-color:#10b981;" onclick="toggleSubunsur(this,'3.1','3.1')">
+<div class="su-progress-header">
+<span class="kode-badge" style="background:#10b981;">3.1</span>
+<span class="su-name">Reviu atas Kinerja</span>
+<span class="su-pct" style="color:#ef4444;">0.0%</span>
+</div>
+<div class="progress-bar" style="height:8px;border-radius:4px;"><div class="progress-fill progress-red" style="width:0.0%;border-radius:4px;"></div></div>
+<div class="su-stats">✓ 0 · ⚠ 0 · ✗ 0 · 🔍 5 · 0/5</div>
+</div>
+<div class="su-progress-item" style="border-left-color:#10b981;" onclick="toggleSubunsur(this,'3.1','3.2')">
+<div class="su-progress-header">
+<span class="kode-badge" style="background:#10b981;">3.2</span>
+<span class="su-name">Pembinaan SDM</span>
+<span class="su-pct" style="color:#ef4444;">0.0%</span>
+</div>
+<div class="progress-bar" style="height:8px;border-radius:4px;"><div class="progress-fill progress-red" style="width:0.0%;border-radius:4px;"></div></div>
+<div class="su-stats">✓ 0 · ⚠ 0 · ✗ 0 · 🔍 5 · 0/5</div>
+</div>
+<div class="su-progress-item" style="border-left-color:#10b981;" onclick="toggleSubunsur(this,'3.1','3.3')">
+<div class="su-progress-header">
+<span class="kode-badge" style="background:#10b981;">3.3</span>
+<span class="su-name">Pengendalian atas Pengelolaan Sistem Informasi</span>
+<span class="su-pct" style="color:#ef4444;">0.0%</span>
+</div>
+<div class="progress-bar" style="height:8px;border-radius:4px;"><div class="progress-fill progress-red" style="width:0.0%;border-radius:4px;"></div></div>
+<div class="su-stats">✓ 0 · ⚠ 0 · ✗ 0 · 🔍 5 · 0/5</div>
+</div>
+<div class="su-progress-item" style="border-left-color:#10b981;" onclick="toggleSubunsur(this,'3.1','3.4')">
+<div class="su-progress-header">
+<span class="kode-badge" style="background:#10b981;">3.4</span>
+<span class="su-name">Pengendalian Fisik atas Aset</span>
+<span class="su-pct" style="color:#ef4444;">0.0%</span>
+</div>
+<div class="progress-bar" style="height:8px;border-radius:4px;"><div class="progress-fill progress-red" style="width:0.0%;border-radius:4px;"></div></div>
+<div class="su-stats">✓ 0 · ⚠ 0 · ✗ 0 · 🔍 5 · 0/5</div>
+</div>
+<div class="su-progress-item" style="border-left-color:#10b981;" onclick="toggleSubunsur(this,'3.1','3.5')">
+<div class="su-progress-header">
+<span class="kode-badge" style="background:#10b981;">3.5</span>
+<span class="su-name">Penetapan dan Reviu atas Indikator dan Ukuran Kinerja</span>
+<span class="su-pct" style="color:#ef4444;">0.0%</span>
+</div>
+<div class="progress-bar" style="height:8px;border-radius:4px;"><div class="progress-fill progress-red" style="width:0.0%;border-radius:4px;"></div></div>
+<div class="su-stats">✓ 0 · ⚠ 0 · ✗ 0 · 🔍 5 · 0/5</div>
+</div>
+<div class="su-progress-item" style="border-left-color:#10b981;" onclick="toggleSubunsur(this,'3.1','3.6')">
+<div class="su-progress-header">
+<span class="kode-badge" style="background:#10b981;">3.6</span>
+<span class="su-name">Pemisahan Fungsi</span>
+<span class="su-pct" style="color:#ef4444;">0.0%</span>
+</div>
+<div class="progress-bar" style="height:8px;border-radius:4px;"><div class="progress-fill progress-red" style="width:0.0%;border-radius:4px;"></div></div>
+<div class="su-stats">✓ 0 · ⚠ 0 · ✗ 0 · 🔍 5 · 0/5</div>
+</div>
+<div class="su-progress-item" style="border-left-color:#10b981;" onclick="toggleSubunsur(this,'3.1','3.7')">
+<div class="su-progress-header">
+<span class="kode-badge" style="background:#10b981;">3.7</span>
+<span class="su-name">Otorisasi atas Transaksi dan Kejadian yang Penting</span>
+<span class="su-pct" style="color:#ef4444;">0.0%</span>
+</div>
+<div class="progress-bar" style="height:8px;border-radius:4px;"><div class="progress-fill progress-red" style="width:0.0%;border-radius:4px;"></div></div>
+<div class="su-stats">✓ 0 · ⚠ 0 · ✗ 0 · 🔍 5 · 0/5</div>
+</div>
+<div class="su-progress-item" style="border-left-color:#10b981;" onclick="toggleSubunsur(this,'3.1','3.8')">
+<div class="su-progress-header">
+<span class="kode-badge" style="background:#10b981;">3.8</span>
+<span class="su-name">Pencatatan yang Akurat dan Tepat Waktu atas Transaksi dan Ke</span>
+<span class="su-pct" style="color:#ef4444;">0.0%</span>
+</div>
+<div class="progress-bar" style="height:8px;border-radius:4px;"><div class="progress-fill progress-red" style="width:0.0%;border-radius:4px;"></div></div>
+<div class="su-stats">✓ 0 · ⚠ 0 · ✗ 0 · 🔍 5 · 0/5</div>
+</div>
+<div class="su-progress-item" style="border-left-color:#10b981;" onclick="toggleSubunsur(this,'3.1','3.9')">
+<div class="su-progress-header">
+<span class="kode-badge" style="background:#10b981;">3.9</span>
+<span class="su-name">Pembatasan Akses atas Sumber Daya dan Pencatatannya</span>
+<span class="su-pct" style="color:#ef4444;">0.0%</span>
+</div>
+<div class="progress-bar" style="height:8px;border-radius:4px;"><div class="progress-fill progress-red" style="width:0.0%;border-radius:4px;"></div></div>
+<div class="su-stats">✓ 0 · ⚠ 0 · ✗ 0 · 🔍 5 · 0/5</div>
+</div>
+<div class="su-progress-item" style="border-left-color:#8b5cf6;" onclick="toggleSubunsur(this,'3.1','4.1')">
+<div class="su-progress-header">
+<span class="kode-badge" style="background:#8b5cf6;">4.1</span>
+<span class="su-name">Informasi yang Relevan</span>
+<span class="su-pct" style="color:#ef4444;">0.0%</span>
+</div>
+<div class="progress-bar" style="height:8px;border-radius:4px;"><div class="progress-fill progress-red" style="width:0.0%;border-radius:4px;"></div></div>
+<div class="su-stats">✓ 0 · ⚠ 0 · ✗ 15 · 🔍 5 · 0/20</div>
+</div>
+<div class="su-progress-item" style="border-left-color:#8b5cf6;" onclick="toggleSubunsur(this,'3.1','4.2')">
+<div class="su-progress-header">
+<span class="kode-badge" style="background:#8b5cf6;">4.2</span>
+<span class="su-name">Komunikasi yang Efektif</span>
+<span class="su-pct" style="color:#ef4444;">0.0%</span>
+</div>
+<div class="progress-bar" style="height:8px;border-radius:4px;"><div class="progress-fill progress-red" style="width:0.0%;border-radius:4px;"></div></div>
+<div class="su-stats">✓ 0 · ⚠ 0 · ✗ 5 · 0/5</div>
+</div>
+<div class="su-progress-item" style="border-left-color:#ef4444;" onclick="toggleSubunsur(this,'3.1','5.1')">
+<div class="su-progress-header">
+<span class="kode-badge" style="background:#ef4444;">5.1</span>
+<span class="su-name">Pemantauan Berkelanjutan</span>
+<span class="su-pct" style="color:#ef4444;">0.0%</span>
+</div>
+<div class="progress-bar" style="height:8px;border-radius:4px;"><div class="progress-fill progress-red" style="width:0.0%;border-radius:4px;"></div></div>
+<div class="su-stats">✓ 0 · ⚠ 0 · ✗ 10 · 🔍 5 · 0/15</div>
+</div>
+<div class="su-progress-item" style="border-left-color:#ef4444;" onclick="toggleSubunsur(this,'3.1','5.2')">
+<div class="su-progress-header">
+<span class="kode-badge" style="background:#ef4444;">5.2</span>
+<span class="su-name">Evaluasi Terpisah</span>
+<span class="su-pct" style="color:#ef4444;">0.0%</span>
+</div>
+<div class="progress-bar" style="height:8px;border-radius:4px;"><div class="progress-fill progress-red" style="width:0.0%;border-radius:4px;"></div></div>
+<div class="su-stats">✓ 0 · ⚠ 0 · ✗ 5 · 🔍 5 · 0/10</div>
+</div>
+<div class="su-progress-item" style="border-left-color:#3b82f6;" onclick="toggleSubunsur(this,'3.4','1.1')">
+<div class="su-progress-header">
+<span class="kode-badge" style="background:#3b82f6;">1.1</span>
+<span class="su-name">Penegakan Integritas dan Nilai Etika</span>
+<span class="su-pct" style="color:#ef4444;">0.0%</span>
+</div>
+<div class="progress-bar" style="height:8px;border-radius:4px;"><div class="progress-fill progress-red" style="width:0.0%;border-radius:4px;"></div></div>
+<div class="su-stats">✓ 0 · ⚠ 0 · ✗ 40 · 0/40</div>
+</div>
+<div class="su-progress-item" style="border-left-color:#3b82f6;" onclick="toggleSubunsur(this,'3.4','1.2')">
+<div class="su-progress-header">
+<span class="kode-badge" style="background:#3b82f6;">1.2</span>
+<span class="su-name">Komitmen terhadap Kompetensi</span>
+<span class="su-pct" style="color:#ef4444;">0.0%</span>
+</div>
+<div class="progress-bar" style="height:8px;border-radius:4px;"><div class="progress-fill progress-red" style="width:0.0%;border-radius:4px;"></div></div>
+<div class="su-stats">✓ 0 · ⚠ 0 · ✗ 5 · 0/5</div>
+</div>
+<div class="su-progress-item" style="border-left-color:#3b82f6;" onclick="toggleSubunsur(this,'3.4','1.3')">
+<div class="su-progress-header">
+<span class="kode-badge" style="background:#3b82f6;">1.3</span>
+<span class="su-name">Kepemimpinan yang Kondusif</span>
+<span class="su-pct" style="color:#ef4444;">0.0%</span>
+</div>
+<div class="progress-bar" style="height:8px;border-radius:4px;"><div class="progress-fill progress-red" style="width:0.0%;border-radius:4px;"></div></div>
+<div class="su-stats">✓ 0 · ⚠ 0 · ✗ 35 · 0/35</div>
+</div>
+<div class="su-progress-item" style="border-left-color:#3b82f6;" onclick="toggleSubunsur(this,'3.4','1.4')">
+<div class="su-progress-header">
+<span class="kode-badge" style="background:#3b82f6;">1.4</span>
+<span class="su-name">Struktur Organisasi Sesuai Kebutuhan</span>
+<span class="su-pct" style="color:#ef4444;">0.0%</span>
+</div>
+<div class="progress-bar" style="height:8px;border-radius:4px;"><div class="progress-fill progress-red" style="width:0.0%;border-radius:4px;"></div></div>
+<div class="su-stats">✓ 0 · ⚠ 0 · ✗ 5 · 0/5</div>
+</div>
+<div class="su-progress-item" style="border-left-color:#3b82f6;" onclick="toggleSubunsur(this,'3.4','1.5')">
+<div class="su-progress-header">
+<span class="kode-badge" style="background:#3b82f6;">1.5</span>
+<span class="su-name">Pendelegasian Wewenang dan Tanggung Jawab yang Tepat</span>
+<span class="su-pct" style="color:#ef4444;">0.0%</span>
+</div>
+<div class="progress-bar" style="height:8px;border-radius:4px;"><div class="progress-fill progress-red" style="width:0.0%;border-radius:4px;"></div></div>
+<div class="su-stats">✓ 0 · ⚠ 0 · ✗ 5 · 0/5</div>
+</div>
+<div class="su-progress-item" style="border-left-color:#3b82f6;" onclick="toggleSubunsur(this,'3.4','1.6')">
+<div class="su-progress-header">
+<span class="kode-badge" style="background:#3b82f6;">1.6</span>
+<span class="su-name">Penyusunan dan Penerapan Kebijakan yang Sehat tentang Pembin</span>
+<span class="su-pct" style="color:#ef4444;">0.0%</span>
+</div>
+<div class="progress-bar" style="height:8px;border-radius:4px;"><div class="progress-fill progress-red" style="width:0.0%;border-radius:4px;"></div></div>
+<div class="su-stats">✓ 0 · ⚠ 0 · ✗ 15 · 0/15</div>
+</div>
+<div class="su-progress-item" style="border-left-color:#3b82f6;" onclick="toggleSubunsur(this,'3.4','1.7')">
+<div class="su-progress-header">
+<span class="kode-badge" style="background:#3b82f6;">1.7</span>
+<span class="su-name">Perwujudan Peran APIP yang Efektf</span>
+<span class="su-pct" style="color:#ef4444;">0.0%</span>
+</div>
+<div class="progress-bar" style="height:8px;border-radius:4px;"><div class="progress-fill progress-red" style="width:0.0%;border-radius:4px;"></div></div>
+<div class="su-stats">✓ 0 · ⚠ 0 · ✗ 5 · 0/5</div>
+</div>
+<div class="su-progress-item" style="border-left-color:#3b82f6;" onclick="toggleSubunsur(this,'3.4','1.8')">
+<div class="su-progress-header">
+<span class="kode-badge" style="background:#3b82f6;">1.8</span>
+<span class="su-name">Hubungan Kerja yang Baik dengan Instansi Pemerintah Terkait</span>
+<span class="su-pct" style="color:#ef4444;">0.0%</span>
+</div>
+<div class="progress-bar" style="height:8px;border-radius:4px;"><div class="progress-fill progress-red" style="width:0.0%;border-radius:4px;"></div></div>
+<div class="su-stats">✓ 0 · ⚠ 0 · ✗ 10 · 0/10</div>
+</div>
+<div class="su-progress-item" style="border-left-color:#f59e0b;" onclick="toggleSubunsur(this,'3.4','2.1')">
+<div class="su-progress-header">
+<span class="kode-badge" style="background:#f59e0b;">2.1</span>
+<span class="su-name">Identifikasi Risiko</span>
+<span class="su-pct" style="color:#ef4444;">0.0%</span>
+</div>
+<div class="progress-bar" style="height:8px;border-radius:4px;"><div class="progress-fill progress-red" style="width:0.0%;border-radius:4px;"></div></div>
+<div class="su-stats">✓ 0 · ⚠ 0 · ✗ 15 · 0/15</div>
+</div>
+<div class="su-progress-item" style="border-left-color:#f59e0b;" onclick="toggleSubunsur(this,'3.4','2.2')">
+<div class="su-progress-header">
+<span class="kode-badge" style="background:#f59e0b;">2.2</span>
+<span class="su-name">Analisis Risiko</span>
+<span class="su-pct" style="color:#ef4444;">0.0%</span>
+</div>
+<div class="progress-bar" style="height:8px;border-radius:4px;"><div class="progress-fill progress-red" style="width:0.0%;border-radius:4px;"></div></div>
+<div class="su-stats">✓ 0 · ⚠ 0 · ✗ 30 · 0/30</div>
+</div>
+<div class="su-progress-item" style="border-left-color:#10b981;" onclick="toggleSubunsur(this,'3.4','3.10')">
+<div class="su-progress-header">
+<span class="kode-badge" style="background:#10b981;">3.10</span>
+<span class="su-name">Akuntabilitas terhadap Sumber Daya dan Pencatatannya</span>
+<span class="su-pct" style="color:#ef4444;">0.0%</span>
+</div>
+<div class="progress-bar" style="height:8px;border-radius:4px;"><div class="progress-fill progress-red" style="width:0.0%;border-radius:4px;"></div></div>
+<div class="su-stats">✓ 0 · ⚠ 0 · ✗ 5 · 0/5</div>
+</div>
+<div class="su-progress-item" style="border-left-color:#10b981;" onclick="toggleSubunsur(this,'3.4','3.11')">
+<div class="su-progress-header">
+<span class="kode-badge" style="background:#10b981;">3.11</span>
+<span class="su-name">Dokumentasi yang Baik atas SPI serta Transaksi dan Kejadian </span>
+<span class="su-pct" style="color:#ef4444;">0.0%</span>
+</div>
+<div class="progress-bar" style="height:8px;border-radius:4px;"><div class="progress-fill progress-red" style="width:0.0%;border-radius:4px;"></div></div>
+<div class="su-stats">✓ 0 · ⚠ 0 · ✗ 5 · 0/5</div>
+</div>
+<div class="su-progress-item" style="border-left-color:#10b981;" onclick="toggleSubunsur(this,'3.4','3.1')">
+<div class="su-progress-header">
+<span class="kode-badge" style="background:#10b981;">3.1</span>
+<span class="su-name">Reviu atas Kinerja Instansi Pemerintah</span>
+<span class="su-pct" style="color:#ef4444;">0.0%</span>
+</div>
+<div class="progress-bar" style="height:8px;border-radius:4px;"><div class="progress-fill progress-red" style="width:0.0%;border-radius:4px;"></div></div>
+<div class="su-stats">✓ 0 · ⚠ 0 · ✗ 5 · 0/5</div>
+</div>
+<div class="su-progress-item" style="border-left-color:#10b981;" onclick="toggleSubunsur(this,'3.4','3.2')">
+<div class="su-progress-header">
+<span class="kode-badge" style="background:#10b981;">3.2</span>
+<span class="su-name">Pembinaan SDM</span>
+<span class="su-pct" style="color:#ef4444;">0.0%</span>
+</div>
+<div class="progress-bar" style="height:8px;border-radius:4px;"><div class="progress-fill progress-red" style="width:0.0%;border-radius:4px;"></div></div>
+<div class="su-stats">✓ 0 · ⚠ 0 · ✗ 5 · 0/5</div>
+</div>
+<div class="su-progress-item" style="border-left-color:#10b981;" onclick="toggleSubunsur(this,'3.4','3.3')">
+<div class="su-progress-header">
+<span class="kode-badge" style="background:#10b981;">3.3</span>
+<span class="su-name">Pengendalian atas Pengelolaan Sistem Informasi</span>
+<span class="su-pct" style="color:#ef4444;">0.0%</span>
+</div>
+<div class="progress-bar" style="height:8px;border-radius:4px;"><div class="progress-fill progress-red" style="width:0.0%;border-radius:4px;"></div></div>
+<div class="su-stats">✓ 0 · ⚠ 0 · ✗ 5 · 0/5</div>
+</div>
+<div class="su-progress-item" style="border-left-color:#10b981;" onclick="toggleSubunsur(this,'3.4','3.4')">
+<div class="su-progress-header">
+<span class="kode-badge" style="background:#10b981;">3.4</span>
+<span class="su-name">Pengendalian Fisik atas Aset</span>
+<span class="su-pct" style="color:#ef4444;">0.0%</span>
+</div>
+<div class="progress-bar" style="height:8px;border-radius:4px;"><div class="progress-fill progress-red" style="width:0.0%;border-radius:4px;"></div></div>
+<div class="su-stats">✓ 0 · ⚠ 0 · ✗ 5 · 0/5</div>
+</div>
+<div class="su-progress-item" style="border-left-color:#10b981;" onclick="toggleSubunsur(this,'3.4','3.5')">
+<div class="su-progress-header">
+<span class="kode-badge" style="background:#10b981;">3.5</span>
+<span class="su-name">Penetapan dan Reviu atas Indikator dan Ukuran Kinerja</span>
+<span class="su-pct" style="color:#ef4444;">0.0%</span>
+</div>
+<div class="progress-bar" style="height:8px;border-radius:4px;"><div class="progress-fill progress-red" style="width:0.0%;border-radius:4px;"></div></div>
+<div class="su-stats">✓ 0 · ⚠ 0 · ✗ 5 · 0/5</div>
+</div>
+<div class="su-progress-item" style="border-left-color:#10b981;" onclick="toggleSubunsur(this,'3.4','3.6')">
+<div class="su-progress-header">
+<span class="kode-badge" style="background:#10b981;">3.6</span>
+<span class="su-name">Pemisahan Fungsi</span>
+<span class="su-pct" style="color:#ef4444;">0.0%</span>
+</div>
+<div class="progress-bar" style="height:8px;border-radius:4px;"><div class="progress-fill progress-red" style="width:0.0%;border-radius:4px;"></div></div>
+<div class="su-stats">✓ 0 · ⚠ 0 · ✗ 5 · 0/5</div>
+</div>
+<div class="su-progress-item" style="border-left-color:#10b981;" onclick="toggleSubunsur(this,'3.4','3.7')">
+<div class="su-progress-header">
+<span class="kode-badge" style="background:#10b981;">3.7</span>
+<span class="su-name">Otorisasi atas Transaksi dan Kejadian yang Penting</span>
+<span class="su-pct" style="color:#ef4444;">0.0%</span>
+</div>
+<div class="progress-bar" style="height:8px;border-radius:4px;"><div class="progress-fill progress-red" style="width:0.0%;border-radius:4px;"></div></div>
+<div class="su-stats">✓ 0 · ⚠ 0 · ✗ 5 · 0/5</div>
+</div>
+<div class="su-progress-item" style="border-left-color:#10b981;" onclick="toggleSubunsur(this,'3.4','3.8')">
+<div class="su-progress-header">
+<span class="kode-badge" style="background:#10b981;">3.8</span>
+<span class="su-name">Pencatatan yang Akurat dan Tepat Waktu atas Transaksi dan Ke</span>
+<span class="su-pct" style="color:#ef4444;">0.0%</span>
+</div>
+<div class="progress-bar" style="height:8px;border-radius:4px;"><div class="progress-fill progress-red" style="width:0.0%;border-radius:4px;"></div></div>
+<div class="su-stats">✓ 0 · ⚠ 0 · ✗ 5 · 0/5</div>
+</div>
+<div class="su-progress-item" style="border-left-color:#10b981;" onclick="toggleSubunsur(this,'3.4','3.9')">
+<div class="su-progress-header">
+<span class="kode-badge" style="background:#10b981;">3.9</span>
+<span class="su-name">Pembatasan Akses atas Sumber Daya dan Pencatatannya</span>
+<span class="su-pct" style="color:#ef4444;">0.0%</span>
+</div>
+<div class="progress-bar" style="height:8px;border-radius:4px;"><div class="progress-fill progress-red" style="width:0.0%;border-radius:4px;"></div></div>
+<div class="su-stats">✓ 0 · ⚠ 0 · ✗ 5 · 0/5</div>
+</div>
+<div class="su-progress-item" style="border-left-color:#8b5cf6;" onclick="toggleSubunsur(this,'3.4','4.1')">
+<div class="su-progress-header">
+<span class="kode-badge" style="background:#8b5cf6;">4.1</span>
+<span class="su-name">Informasi yang Relevan</span>
+<span class="su-pct" style="color:#ef4444;">0.0%</span>
+</div>
+<div class="progress-bar" style="height:8px;border-radius:4px;"><div class="progress-fill progress-red" style="width:0.0%;border-radius:4px;"></div></div>
+<div class="su-stats">✓ 0 · ⚠ 0 · ✗ 25 · 0/25</div>
+</div>
+<div class="su-progress-item" style="border-left-color:#8b5cf6;" onclick="toggleSubunsur(this,'3.4','4.2')">
+<div class="su-progress-header">
+<span class="kode-badge" style="background:#8b5cf6;">4.2</span>
+<span class="su-name">Komunikasi yang Efektif</span>
+<span class="su-pct" style="color:#ef4444;">0.0%</span>
+</div>
+<div class="progress-bar" style="height:8px;border-radius:4px;"><div class="progress-fill progress-red" style="width:0.0%;border-radius:4px;"></div></div>
+<div class="su-stats">✓ 0 · ⚠ 0 · ✗ 5 · 0/5</div>
+</div>
+<div class="su-progress-item" style="border-left-color:#ef4444;" onclick="toggleSubunsur(this,'3.4','5.1')">
+<div class="su-progress-header">
+<span class="kode-badge" style="background:#ef4444;">5.1</span>
+<span class="su-name">Pemantauan Berkelanjutan</span>
+<span class="su-pct" style="color:#ef4444;">0.0%</span>
+</div>
+<div class="progress-bar" style="height:8px;border-radius:4px;"><div class="progress-fill progress-red" style="width:0.0%;border-radius:4px;"></div></div>
+<div class="su-stats">✓ 0 · ⚠ 0 · ✗ 15 · 0/15</div>
+</div>
+<div class="su-progress-item" style="border-left-color:#ef4444;" onclick="toggleSubunsur(this,'3.4','5.2')">
+<div class="su-progress-header">
+<span class="kode-badge" style="background:#ef4444;">5.2</span>
+<span class="su-name">Evaluasi Terpisah</span>
+<span class="su-pct" style="color:#ef4444;">0.0%</span>
+</div>
+<div class="progress-bar" style="height:8px;border-radius:4px;"><div class="progress-fill progress-red" style="width:0.0%;border-radius:4px;"></div></div>
+<div class="su-stats">✓ 0 · ⚠ 0 · ✗ 10 · 0/10</div>
+</div>
+</div>
+</div>
+</div>
+<div class="section" id="checklist">
+<h2 class="section-title"><span class="section-num">📋</span> Checklist Detail per Subunsur</h2>
+<p class="section-subtitle">Filter dan cari dokumen per subunsur, parameter, dan grade</p>
+<div class="filter-bar">
+<span class="filter-label">KK:</span>
+<select class="filter-select" id="filter-kk" onchange="applyFilter()">
+<option value="">Semua</option>
+<option value="3.1">KK 3.1 (T1)</option>
+<option value="3.4">KK 3.4 (T4)</option>
+</select>
+<span class="filter-label">Unsur:</span>
+<select class="filter-select" id="filter-unsur" onchange="applyFilter()">
+<option value="">Semua</option>
+<option value="1">1 — Lingkungan Pengendalian</option>
+<option value="2">2 — Penilaian Risiko</option>
+<option value="3">3 — Kegiatan Pengendalian</option>
+<option value="4">4 — Informasi dan Komunikasi</option>
+<option value="5">5 — Pemantauan</option>
+</select>
+<span class="filter-label">Subunsur:</span>
+<select class="filter-select" id="filter-subunsur" onchange="applyFilter()">
+<option value="">Semua</option>
+</select>
+<span class="filter-label">Status:</span>
+<select class="filter-select" id="filter-status" onchange="applyFilter()">
+<option value="">Semua</option>
+<option value="lengkap">✓ Lengkap</option>
+<option value="parsial">⚠ Parsial</option>
+<option value="kosong">✗ Kosong</option>
+<option value="not_found">🔍 Not Found</option>
+</select>
+<input type="text" class="filter-search" id="filter-search" placeholder="🔍 Cari parameter atau dokumen..." oninput="applyFilter()">
+</div>
+<div class="table-container">
+<table class="checklist" id="checklist-table">
+<thead>
+<tr>
+<th>KK</th>
+<th>Kode</th>
+<th>Parameter</th>
+<th class="grade-col">A</th>
+<th class="grade-col">B</th>
+<th class="grade-col">C</th>
+<th class="grade-col">D</th>
+<th class="grade-col">E</th>
+<th>Status</th>
+<th>Upload Terakhir</th>
+</tr>
+</thead>
+<tbody id="checklist-body">
+<tr data-kk="3.1" data-unsur="1" data-subunsur="1.1" data-status="kosong">
+<td class="kk-cell">3.1</td>
+<td><span class="kode-badge" style="background:#3b82f6;">1.1.1</span></td>
+<td class="param-text">K/L/D menegakkan integritas dan nilai etika dalam melaksanakan tugas dan fungsi organisasi</td>
+<td class="grade-cell notfound" title="">?<span class="file-count"></span></td>
+<td class="grade-cell notfound" title="">?<span class="file-count"></span></td>
+<td class="grade-cell notfound" title="">?<span class="file-count"></span></td>
+<td class="grade-cell notfound" title="">?<span class="file-count"></span></td>
+<td class="grade-cell notfound" title="">?<span class="file-count"></span></td>
+<td class="status-no">✗ Kosong</td>
+<td class="date-cell">-</td>
+</tr>
+<tr data-kk="3.1" data-unsur="1" data-subunsur="1.2" data-status="kosong">
+<td class="kk-cell">3.1</td>
+<td><span class="kode-badge" style="background:#3b82f6;">1.2.1</span></td>
+<td class="param-text">Tugas dan jabatan dalam organisasi dilaksanakan dan diisi oleh SDM yang kompeten</td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1gbuT6KGsmJPpMiwuFiZLZk_wyn6VsaXa" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1Sf_VzZRhpBzYDxjXRN7osJkEQun0Ksha" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1iudfb4xdqaZLo5RmStBnFUnYr7RCdeLt" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1CFbzr8_nILEoCnMU4d9tF-aDHNCpY8iZ" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1UEYTen3jamK7JjsI32DvJDPdLUa5yCgN" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="status-no">✗ Kosong</td>
+<td class="date-cell">-</td>
+</tr>
+<tr data-kk="3.1" data-unsur="1" data-subunsur="1.3" data-status="kosong">
+<td class="kk-cell">3.1</td>
+<td><span class="kode-badge" style="background:#3b82f6;">1.3.1</span></td>
+<td class="param-text">Pimpinan K/L/D menciptakan lingkungan kerja yang kondusif untuk pencapaian tujuan organisasi</td>
+<td class="grade-cell notfound" title="">?<span class="file-count"></span></td>
+<td class="grade-cell notfound" title="">?<span class="file-count"></span></td>
+<td class="grade-cell notfound" title="">?<span class="file-count"></span></td>
+<td class="grade-cell notfound" title="">?<span class="file-count"></span></td>
+<td class="grade-cell notfound" title="">?<span class="file-count"></span></td>
+<td class="status-no">✗ Kosong</td>
+<td class="date-cell">-</td>
+</tr>
+<tr data-kk="3.1" data-unsur="1" data-subunsur="1.3" data-status="kosong">
+<td class="kk-cell">3.1</td>
+<td><span class="kode-badge" style="background:#3b82f6;">1.3.2</span></td>
+<td class="param-text">Pimpinan K/L/D mengalokasikan sumber daya untuk penerapan manajemen risiko</td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1h8wuA9ES6GxKHgukIjUU29sXya0OTrVc" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1xB5CycYtK5-sY8TImW5o5V1fIm_2iuPs" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/12Pv0c3hH-LlNPQHWQWEPYTlHYQRdsZwx" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1N8m1HUx8O4NwYHlpFnVo4Ggh4M3i1RKu" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1EA9h3ajlzHPOef4V69kUD8icT6rjPMW_" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="status-no">✗ Kosong</td>
+<td class="date-cell">-</td>
+</tr>
+<tr data-kk="3.1" data-unsur="1" data-subunsur="1.3" data-status="kosong">
+<td class="kk-cell">3.1</td>
+<td><span class="kode-badge" style="background:#3b82f6;">1.3.3</span></td>
+<td class="param-text">Pimpinan K/L/D menggunakan informasi terkait risiko dalam pengambilan keputusan</td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1_AaeZPLJ-m2WowkqHIgn2aRpFa2rrSbn" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1ZwY1NuxYdft6kGve2W9QOe5xiydzc7MN" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1Bi_DTYkYRmrssmXjsk42jnBd38jc-9i5" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1vsSoINKfn1LkF9ZeAd9uZBKdU9-bGAtF" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1WbJ6UXMuyR71Yb5o8wGIYR1Px2FY0ofv" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="status-no">✗ Kosong</td>
+<td class="date-cell">-</td>
+</tr>
+<tr data-kk="3.1" data-unsur="1" data-subunsur="1.3" data-status="kosong">
+<td class="kk-cell">3.1</td>
+<td><span class="kode-badge" style="background:#3b82f6;">1.3.4</span></td>
+<td class="param-text">Pimpinan K/L/D mendorong penerapan manajemen risiko, melalui penggunaan kinerja penerapan manajemen risiko sebagai indik</td>
+<td class="grade-cell notfound" title="">?<span class="file-count"></span></td>
+<td class="grade-cell notfound" title="">?<span class="file-count"></span></td>
+<td class="grade-cell notfound" title="">?<span class="file-count"></span></td>
+<td class="grade-cell notfound" title="">?<span class="file-count"></span></td>
+<td class="grade-cell notfound" title="">?<span class="file-count"></span></td>
+<td class="status-no">✗ Kosong</td>
+<td class="date-cell">-</td>
+</tr>
+<tr data-kk="3.1" data-unsur="1" data-subunsur="1.4" data-status="kosong">
+<td class="kk-cell">3.1</td>
+<td><span class="kode-badge" style="background:#3b82f6;">1.4.1</span></td>
+<td class="param-text">Struktur organisasi dibentuk dalam rangka mendukung pencapaian sasaran strategis organisasi</td>
+<td class="grade-cell notfound" title="">?<span class="file-count"></span></td>
+<td class="grade-cell notfound" title="">?<span class="file-count"></span></td>
+<td class="grade-cell notfound" title="">?<span class="file-count"></span></td>
+<td class="grade-cell notfound" title="">?<span class="file-count"></span></td>
+<td class="grade-cell notfound" title="">?<span class="file-count"></span></td>
+<td class="status-no">✗ Kosong</td>
+<td class="date-cell">-</td>
+</tr>
+<tr data-kk="3.1" data-unsur="1" data-subunsur="1.5" data-status="kosong">
+<td class="kk-cell">3.1</td>
+<td><span class="kode-badge" style="background:#3b82f6;">1.5.1</span></td>
+<td class="param-text">Wewenang dan tanggung jawab diberikan kepada pegawai yang tepat sesuai tingkatannya untuk mendukung efektivitas dan efis</td>
+<td class="grade-cell notfound" title="">?<span class="file-count"></span></td>
+<td class="grade-cell notfound" title="">?<span class="file-count"></span></td>
+<td class="grade-cell notfound" title="">?<span class="file-count"></span></td>
+<td class="grade-cell notfound" title="">?<span class="file-count"></span></td>
+<td class="grade-cell notfound" title="">?<span class="file-count"></span></td>
+<td class="status-no">✗ Kosong</td>
+<td class="date-cell">-</td>
+</tr>
+<tr data-kk="3.1" data-unsur="1" data-subunsur="1.6" data-status="kosong">
+<td class="kk-cell">3.1</td>
+<td><span class="kode-badge" style="background:#3b82f6;">1.6.1</span></td>
+<td class="param-text">Penerapan kebijakan manajemen dan praktik pembinaan SDM sehingga dapat digunakan secara maksimal untuk mencapai tujuan o</td>
+<td class="grade-cell notfound" title="">?<span class="file-count"></span></td>
+<td class="grade-cell notfound" title="">?<span class="file-count"></span></td>
+<td class="grade-cell notfound" title="">?<span class="file-count"></span></td>
+<td class="grade-cell notfound" title="">?<span class="file-count"></span></td>
+<td class="grade-cell notfound" title="">?<span class="file-count"></span></td>
+<td class="status-no">✗ Kosong</td>
+<td class="date-cell">-</td>
+</tr>
+<tr data-kk="3.1" data-unsur="1" data-subunsur="1.6" data-status="kosong">
+<td class="kk-cell">3.1</td>
+<td><span class="kode-badge" style="background:#3b82f6;">1.6.2</span></td>
+<td class="param-text">Pegawai telah mendapatkan fasilitas untuk meningkatkan kompetensi dan keterampilan terkait manajemen risiko</td>
+<td class="grade-cell notfound" title="">?<span class="file-count"></span></td>
+<td class="grade-cell notfound" title="">?<span class="file-count"></span></td>
+<td class="grade-cell notfound" title="">?<span class="file-count"></span></td>
+<td class="grade-cell notfound" title="">?<span class="file-count"></span></td>
+<td class="grade-cell notfound" title="">?<span class="file-count"></span></td>
+<td class="status-no">✗ Kosong</td>
+<td class="date-cell">-</td>
+</tr>
+<tr data-kk="3.1" data-unsur="1" data-subunsur="1.6" data-status="kosong">
+<td class="kk-cell">3.1</td>
+<td><span class="kode-badge" style="background:#3b82f6;">1.6.3</span></td>
+<td class="param-text">Pegawai memiliki kesadaran terkait manajemen risiko</td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1C-aDLcLN4jxRcaRcHmEyHywixuQA0sPi" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1KxEHRrUvpNv8VHjswJ_7XL_nBCDhkAQD" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1MhjLCDJKm5b9AnrCQxCU0v0UNEIvX-LC" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1UzjNFhj_jmMi1TbqStGy-Yq3cPmSGZcB" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1STDHVakG6x4-M7fEzhoYIW438YHu1cL1" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="status-no">✗ Kosong</td>
+<td class="date-cell">-</td>
+</tr>
+<tr data-kk="3.1" data-unsur="1" data-subunsur="1.7" data-status="kosong">
+<td class="kk-cell">3.1</td>
+<td><span class="kode-badge" style="background:#3b82f6;">1.7.1</span></td>
+<td class="param-text">Pengawasan APIP telah dapat memberikan nilai tambah pada perbaikan pengendalian organisasi</td>
+<td class="grade-cell notfound" title="">?<span class="file-count"></span></td>
+<td class="grade-cell notfound" title="">?<span class="file-count"></span></td>
+<td class="grade-cell notfound" title="">?<span class="file-count"></span></td>
+<td class="grade-cell notfound" title="">?<span class="file-count"></span></td>
+<td class="grade-cell notfound" title="">?<span class="file-count"></span></td>
+<td class="status-no">✗ Kosong</td>
+<td class="date-cell">-</td>
+</tr>
+<tr data-kk="3.1" data-unsur="1" data-subunsur="1.8" data-status="kosong">
+<td class="kk-cell">3.1</td>
+<td><span class="kode-badge" style="background:#3b82f6;">1.8.1</span></td>
+<td class="param-text">Pimpinan K/L/D menjalin hubungan kerja yang baik (kemitraan) dengan instansi lain terkait dengan upaya pencapaian tujuan</td>
+<td class="grade-cell notfound" title="">?<span class="file-count"></span></td>
+<td class="grade-cell notfound" title="">?<span class="file-count"></span></td>
+<td class="grade-cell notfound" title="">?<span class="file-count"></span></td>
+<td class="grade-cell notfound" title="">?<span class="file-count"></span></td>
+<td class="grade-cell notfound" title="">?<span class="file-count"></span></td>
+<td class="status-no">✗ Kosong</td>
+<td class="date-cell">-</td>
+</tr>
+<tr data-kk="3.1" data-unsur="1" data-subunsur="1.8" data-status="kosong">
+<td class="kk-cell">3.1</td>
+<td><span class="kode-badge" style="background:#3b82f6;">1.8.2</span></td>
+<td class="param-text">Dalam rangka menciptakan hubungan kerja yang baik, K/L/D telah mengidentifikasi, menilai, dan mengelola risiko (termasuk</td>
+<td class="grade-cell notfound" title="">?<span class="file-count"></span></td>
+<td class="grade-cell notfound" title="">?<span class="file-count"></span></td>
+<td class="grade-cell notfound" title="">?<span class="file-count"></span></td>
+<td class="grade-cell notfound" title="">?<span class="file-count"></span></td>
+<td class="grade-cell notfound" title="">?<span class="file-count"></span></td>
+<td class="status-no">✗ Kosong</td>
+<td class="date-cell">-</td>
+</tr>
+<tr data-kk="3.1" data-unsur="2" data-subunsur="2.1" data-status="kosong">
+<td class="kk-cell">3.1</td>
+<td><span class="kode-badge" style="background:#f59e0b;">2.1.1</span></td>
+<td class="param-text">K/L/D telah memiliki Kebijakan Manajemen Risiko</td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1DYUTUnRT8jM4PfJnfkNATFCDidHNqbJY" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/14ET4xdCPdXrIM0vrXeAMBmt01xjoECW3" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1EiJu-4FH7ElQnAI6b3srb2tT9M9YWGxQ" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1EKJqOLIgWSzvAYr2V81j3WH1b0qiA64_" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/13h61kcSf_r_xWgWlgkUuuuZ0a_PjNRh8" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="status-no">✗ Kosong</td>
+<td class="date-cell">-</td>
+</tr>
+<tr data-kk="3.1" data-unsur="2" data-subunsur="2.1" data-status="kosong">
+<td class="kk-cell">3.1</td>
+<td><span class="kode-badge" style="background:#f59e0b;">2.1.2</span></td>
+<td class="param-text">Risiko telah teridentifikasi dan  dituangkan dalam register risiko</td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1cBRMFbpUwWEWRnqS7fNXtkCkCmbAXpj2" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1D7I8X62Rdi8YWheKuDJ4Yhytqrp5Wx-w" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1_G-pF94dkWkBNwyd5nkkE_TvZoCyqC2u" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1iFwTFFjrqbd8BMsdXMhxsnNs0FZUyHnF" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1fdPrfxnKF1hFEYdzTxtwt5_TG3BWhRLH" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="status-no">✗ Kosong</td>
+<td class="date-cell">-</td>
+</tr>
+<tr data-kk="3.1" data-unsur="2" data-subunsur="2.1" data-status="kosong">
+<td class="kk-cell">3.1</td>
+<td><span class="kode-badge" style="background:#f59e0b;">2.1.3</span></td>
+<td class="param-text">Proses manajemen risiko telah melekat pada proses bisnis K/L/D</td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1E9PZazdjsb3W88IC7NnIXzGmES_wg8we" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/12yt7VWvfE8pcijPY7fD3-6rMQ_ZJeF1T" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1fXQGKE6lADsT6uiSlFL2cNKiyVh4YrCy" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1Eo-ZYuH7v-r9NkmgbRt-ngiOsZbVtJIf" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1ZCpxHrw_RytGrJYlXNkwJwxf5AY6NG5y" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="status-no">✗ Kosong</td>
+<td class="date-cell">-</td>
+</tr>
+<tr data-kk="3.1" data-unsur="2" data-subunsur="2.2" data-status="kosong">
+<td class="kk-cell">3.1</td>
+<td><span class="kode-badge" style="background:#f59e0b;">2.2.1</span></td>
+<td class="param-text">Seluruh risiko telah dianalisis dampak dan tingkat keterjadiannya</td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/13ZzDbHjkdmOvU07vpQIhPF-OrudxKBo3" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1OVJNI1XAxiCDlYXAPZntIh_V2_43rXYr" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1AV90eood2ZVdON6BGsvZsFwhurqxaLbE" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1OIAPO-cykLVk6OZZvQerZZkxwCnYe0P6" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1755fZvBqzz_Tgs1zWZplA5nMa0YDlAy9" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="status-no">✗ Kosong</td>
+<td class="date-cell">-</td>
+</tr>
+<tr data-kk="3.1" data-unsur="2" data-subunsur="2.2" data-status="kosong">
+<td class="kk-cell">3.1</td>
+<td><span class="kode-badge" style="background:#f59e0b;">2.2.2</span></td>
+<td class="param-text">K/L/D telah menentukan prioritas risiko</td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/18WsK63TmtC9z0mdBkehDFgaZLCfrxo04" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/18QLyK5Mt2HL6e8OF5yN6gmGcWIPvY-e3" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/11uYhRgvaVAafr3wFnE76B6AMfnADMHVh" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1PQTS5Zl48IKJ9ASRIqqs5t6RERDn3fGw" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1cRYHvYEkOKMyvfG_nRjf4TVUQzfk4VJU" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="status-no">✗ Kosong</td>
+<td class="date-cell">-</td>
+</tr>
+<tr data-kk="3.1" data-unsur="2" data-subunsur="2.2" data-status="kosong">
+<td class="kk-cell">3.1</td>
+<td><span class="kode-badge" style="background:#f59e0b;">2.2.3</span></td>
+<td class="param-text">K/L/D telah menentukan rencana tindak pengendalian</td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1K9lfBZSsaGKjOY-y2NJXqy8DSDvYGVaj" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/10ULg823p6-0CUoO4zIVlTmwJJOUIp7QU" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1hglAjzEq7g7wsOgP1YTAQusWipdF5atJ" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/12_RbxCoUy9IbviSOK8U75rZ4QDnyMick" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/116aRVvRPKlu4JUQAG6KjKxK-IUCReqcQ" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="status-no">✗ Kosong</td>
+<td class="date-cell">-</td>
+</tr>
+<tr data-kk="3.1" data-unsur="2" data-subunsur="2.2" data-status="kosong">
+<td class="kk-cell">3.1</td>
+<td><span class="kode-badge" style="background:#f59e0b;">2.2.4</span></td>
+<td class="param-text">Tindak pengendalian telah diimplementasikan</td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1iqlkX3NLTci29cX8TR0XFU97N_bjmT2f" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1bjMdhYTqjQ4APe05PwL05SDIVSvkkeRs" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1wS1d1Fo1NaN5vsDsBqVlU4W9tx7kQFmm" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/14ELn2rzJmOHQ1qUFquJJdRr-yTVHV-4e" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/12-MmrFemfLdH4CYx5P6pAxKu5TZm6wiu" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="status-no">✗ Kosong</td>
+<td class="date-cell">-</td>
+</tr>
+<tr data-kk="3.1" data-unsur="2" data-subunsur="2.2" data-status="kosong">
+<td class="kk-cell">3.1</td>
+<td><span class="kode-badge" style="background:#f59e0b;">2.2.5</span></td>
+<td class="param-text">Tindak pengendalian efektif menurunkan risiko</td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1AxPZ-niUSpbJALwHWE-5QHfbWWoJyCs1" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1C5b-PlespfSoRih_ZZEyjn_0JCUfHPD8" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1FE10wTfPxEs05WNA3yWrQflqi_ywbKOE" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1MBqPgYB51qggztAbkdLevybymmqE6Z4N" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1Nh_GZDpbFJona0l57pvoAKUUet_lzBzL" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="status-no">✗ Kosong</td>
+<td class="date-cell">-</td>
+</tr>
+<tr data-kk="3.1" data-unsur="3" data-subunsur="3.1" data-status="kosong">
+<td class="kk-cell">3.1</td>
+<td><span class="kode-badge" style="background:#10b981;">3.1.1</span></td>
+<td class="param-text">Pimpinan K/L/D membandingkan tolok ukur kinerja dengan capaian kinerja secara berkala untuk mengatasi hambatan kinerja, </td>
+<td class="grade-cell notfound" title="">?<span class="file-count"></span></td>
+<td class="grade-cell notfound" title="">?<span class="file-count"></span></td>
+<td class="grade-cell notfound" title="">?<span class="file-count"></span></td>
+<td class="grade-cell notfound" title="">?<span class="file-count"></span></td>
+<td class="grade-cell notfound" title="">?<span class="file-count"></span></td>
+<td class="status-no">✗ Kosong</td>
+<td class="date-cell">-</td>
+</tr>
+<tr data-kk="3.1" data-unsur="3" data-subunsur="3.10" data-status="kosong">
+<td class="kk-cell">3.1</td>
+<td><span class="kode-badge" style="background:#10b981;">3.10.1</span></td>
+<td class="param-text">Terdapat pertanggungjawaban seseorang atau unit organisasi dalam mengelola sumber daya yang diberikan/dikuasakan kepadan</td>
+<td class="grade-cell notfound" title="">?<span class="file-count"></span></td>
+<td class="grade-cell notfound" title="">?<span class="file-count"></span></td>
+<td class="grade-cell notfound" title="">?<span class="file-count"></span></td>
+<td class="grade-cell notfound" title="">?<span class="file-count"></span></td>
+<td class="grade-cell notfound" title="">?<span class="file-count"></span></td>
+<td class="status-no">✗ Kosong</td>
+<td class="date-cell">-</td>
+</tr>
+<tr data-kk="3.1" data-unsur="3" data-subunsur="3.11" data-status="kosong">
+<td class="kk-cell">3.1</td>
+<td><span class="kode-badge" style="background:#10b981;">3.11.1</span></td>
+<td class="param-text">Terdapat pengelolaan, pemeliharaan, dan pendokumentasian secara berkala yang mencakup seluruh SPI serta transaksi dan ke</td>
+<td class="grade-cell notfound" title="">?<span class="file-count"></span></td>
+<td class="grade-cell notfound" title="">?<span class="file-count"></span></td>
+<td class="grade-cell notfound" title="">?<span class="file-count"></span></td>
+<td class="grade-cell notfound" title="">?<span class="file-count"></span></td>
+<td class="grade-cell notfound" title="">?<span class="file-count"></span></td>
+<td class="status-no">✗ Kosong</td>
+<td class="date-cell">-</td>
+</tr>
+<tr data-kk="3.1" data-unsur="3" data-subunsur="3.2" data-status="kosong">
+<td class="kk-cell">3.1</td>
+<td><span class="kode-badge" style="background:#10b981;">3.2.1</span></td>
+<td class="param-text">Pembinaan SDM dilakukan sehingga setiap pegawai dapat memberikan manfaat optimal dalam pencapaian tujuan organisasi</td>
+<td class="grade-cell notfound" title="">?<span class="file-count"></span></td>
+<td class="grade-cell notfound" title="">?<span class="file-count"></span></td>
+<td class="grade-cell notfound" title="">?<span class="file-count"></span></td>
+<td class="grade-cell notfound" title="">?<span class="file-count"></span></td>
+<td class="grade-cell notfound" title="">?<span class="file-count"></span></td>
+<td class="status-no">✗ Kosong</td>
+<td class="date-cell">-</td>
+</tr>
+<tr data-kk="3.1" data-unsur="3" data-subunsur="3.3" data-status="kosong">
+<td class="kk-cell">3.1</td>
+<td><span class="kode-badge" style="background:#10b981;">3.3.1</span></td>
+<td class="param-text">Pengendalian atas pengelolaan sistem informasi dilakukan untuk memastikan sistem informasi dapat menyajikan data yang ak</td>
+<td class="grade-cell notfound" title="">?<span class="file-count"></span></td>
+<td class="grade-cell notfound" title="">?<span class="file-count"></span></td>
+<td class="grade-cell notfound" title="">?<span class="file-count"></span></td>
+<td class="grade-cell notfound" title="">?<span class="file-count"></span></td>
+<td class="grade-cell notfound" title="">?<span class="file-count"></span></td>
+<td class="status-no">✗ Kosong</td>
+<td class="date-cell">-</td>
+</tr>
+<tr data-kk="3.1" data-unsur="3" data-subunsur="3.4" data-status="kosong">
+<td class="kk-cell">3.1</td>
+<td><span class="kode-badge" style="background:#10b981;">3.4.1</span></td>
+<td class="param-text">Pengelolaan BMN/D dilakukan untuk menjamin aset tersedia dan dapat digunakan dengan baik oleh pengguna dalam rangka mend</td>
+<td class="grade-cell notfound" title="">?<span class="file-count"></span></td>
+<td class="grade-cell notfound" title="">?<span class="file-count"></span></td>
+<td class="grade-cell notfound" title="">?<span class="file-count"></span></td>
+<td class="grade-cell notfound" title="">?<span class="file-count"></span></td>
+<td class="grade-cell notfound" title="">?<span class="file-count"></span></td>
+<td class="status-no">✗ Kosong</td>
+<td class="date-cell">-</td>
+</tr>
+<tr data-kk="3.1" data-unsur="3" data-subunsur="3.5" data-status="kosong">
+<td class="kk-cell">3.1</td>
+<td><span class="kode-badge" style="background:#10b981;">3.5.1</span></td>
+<td class="param-text">Kegiatan pengendalian atas penetapan dan reviu atas indikator dan ukuran kinerja dilakukan untuk menjamin keandalan ukur</td>
+<td class="grade-cell notfound" title="">?<span class="file-count"></span></td>
+<td class="grade-cell notfound" title="">?<span class="file-count"></span></td>
+<td class="grade-cell notfound" title="">?<span class="file-count"></span></td>
+<td class="grade-cell notfound" title="">?<span class="file-count"></span></td>
+<td class="grade-cell notfound" title="">?<span class="file-count"></span></td>
+<td class="status-no">✗ Kosong</td>
+<td class="date-cell">-</td>
+</tr>
+<tr data-kk="3.1" data-unsur="3" data-subunsur="3.6" data-status="kosong">
+<td class="kk-cell">3.1</td>
+<td><span class="kode-badge" style="background:#10b981;">3.6.1</span></td>
+<td class="param-text">Terdapat pemisahan fungsi sehingga seluruh aspek utama transaksi dan kejadian tidak dikendalikan hanya oleh satu orang</td>
+<td class="grade-cell notfound" title="">?<span class="file-count"></span></td>
+<td class="grade-cell notfound" title="">?<span class="file-count"></span></td>
+<td class="grade-cell notfound" title="">?<span class="file-count"></span></td>
+<td class="grade-cell notfound" title="">?<span class="file-count"></span></td>
+<td class="grade-cell notfound" title="">?<span class="file-count"></span></td>
+<td class="status-no">✗ Kosong</td>
+<td class="date-cell">-</td>
+</tr>
+<tr data-kk="3.1" data-unsur="3" data-subunsur="3.7" data-status="kosong">
+<td class="kk-cell">3.1</td>
+<td><span class="kode-badge" style="background:#10b981;">3.7.1</span></td>
+<td class="param-text">Terdapat proses untuk memastikan transaksi dan kejadian penting hanya dapat diotorisasi ketika memenuhi persyaratan dan </td>
+<td class="grade-cell notfound" title="">?<span class="file-count"></span></td>
+<td class="grade-cell notfound" title="">?<span class="file-count"></span></td>
+<td class="grade-cell notfound" title="">?<span class="file-count"></span></td>
+<td class="grade-cell notfound" title="">?<span class="file-count"></span></td>
+<td class="grade-cell notfound" title="">?<span class="file-count"></span></td>
+<td class="status-no">✗ Kosong</td>
+<td class="date-cell">-</td>
+</tr>
+<tr data-kk="3.1" data-unsur="3" data-subunsur="3.8" data-status="kosong">
+<td class="kk-cell">3.1</td>
+<td><span class="kode-badge" style="background:#10b981;">3.8.1</span></td>
+<td class="param-text">Terdapat proses untuk memastikan transaksi telah diklasifikasikan dengan layak dan dikelompokkan dengan benar serta dica</td>
+<td class="grade-cell notfound" title="">?<span class="file-count"></span></td>
+<td class="grade-cell notfound" title="">?<span class="file-count"></span></td>
+<td class="grade-cell notfound" title="">?<span class="file-count"></span></td>
+<td class="grade-cell notfound" title="">?<span class="file-count"></span></td>
+<td class="grade-cell notfound" title="">?<span class="file-count"></span></td>
+<td class="status-no">✗ Kosong</td>
+<td class="date-cell">-</td>
+</tr>
+<tr data-kk="3.1" data-unsur="3" data-subunsur="3.9" data-status="kosong">
+<td class="kk-cell">3.1</td>
+<td><span class="kode-badge" style="background:#10b981;">3.9.1</span></td>
+<td class="param-text">Terdapat pembatasan atas kesempatan dan hak untuk menggunakan, atau memperoleh sumber daya dan mengakses pencatatannya</td>
+<td class="grade-cell notfound" title="">?<span class="file-count"></span></td>
+<td class="grade-cell notfound" title="">?<span class="file-count"></span></td>
+<td class="grade-cell notfound" title="">?<span class="file-count"></span></td>
+<td class="grade-cell notfound" title="">?<span class="file-count"></span></td>
+<td class="grade-cell notfound" title="">?<span class="file-count"></span></td>
+<td class="status-no">✗ Kosong</td>
+<td class="date-cell">-</td>
+</tr>
+<tr data-kk="3.1" data-unsur="4" data-subunsur="4.1" data-status="kosong">
+<td class="kk-cell">3.1</td>
+<td><span class="kode-badge" style="background:#8b5cf6;">4.1.1</span></td>
+<td class="param-text">Tersedianya informasi yang relevan untuk kebutuhan internal dan eksternal</td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1Ghc8F1x3CSVBFAYe49wRmOpqQ2s818R7" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1UPAQXgebV8jFM9-NzYvnxP5JstJKSJnf" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/10s5cXfRetV9zrIzXbWzcr7WyacUG4j_r" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1jlDo81q98vpFeMuygvGPa1l00rMpOBM-" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1JB52hw8XbMoHA2QYtKljyMsm7ax1gbWh" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="status-no">✗ Kosong</td>
+<td class="date-cell">-</td>
+</tr>
+<tr data-kk="3.1" data-unsur="4" data-subunsur="4.1" data-status="kosong">
+<td class="kk-cell">3.1</td>
+<td><span class="kode-badge" style="background:#8b5cf6;">4.1.2</span></td>
+<td class="param-text">Pimpinan K/L/D membangun sistem pengaduan</td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1JDob_tVomFTNUcqWPoORi8kf_MZvaC6A" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1MQeTy3y00-F9wOWuyAL0zeedjSvtYNAy" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/17Fb_Uz2XNIDOUJWls8x7p7ll4UUPlG_W" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1K44VgxnAEYF8bRLyfSvvxDUmVk1lmAW8" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1EA6oY-3JjVNdY7KfQur1dKjalprqiEST" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="status-no">✗ Kosong</td>
+<td class="date-cell">-</td>
+</tr>
+<tr data-kk="3.1" data-unsur="4" data-subunsur="4.1" data-status="kosong">
+<td class="kk-cell">3.1</td>
+<td><span class="kode-badge" style="background:#8b5cf6;">4.1.3</span></td>
+<td class="param-text">Strategi dan kebijakan manajemen risiko telah dikomunikasikan.</td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1io7Eco9qRoxwrj3V-sX0f6E4YxBGMB8X" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/10g7bB-QJUiBkw1QfiMdet7dzbQFAkQPx" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1uD5AF63GOTPJUCDKYcPphDHPNWFosMa_" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1umPpRHR9A-khSWADdLIpbakAQtdSLNwb" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1cMWaa2TZRBDCGE4JwyZ3CLhwP5626Up3" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="status-no">✗ Kosong</td>
+<td class="date-cell">-</td>
+</tr>
+<tr data-kk="3.1" data-unsur="4" data-subunsur="4.1" data-status="kosong">
+<td class="kk-cell">3.1</td>
+<td><span class="kode-badge" style="background:#8b5cf6;">4.1.4</span></td>
+<td class="param-text">Register risiko dan rencana tindak pengendalian telah dikomunikasikan ke pihak terkait</td>
+<td class="grade-cell notfound" title="">?<span class="file-count"></span></td>
+<td class="grade-cell notfound" title="">?<span class="file-count"></span></td>
+<td class="grade-cell notfound" title="">?<span class="file-count"></span></td>
+<td class="grade-cell notfound" title="">?<span class="file-count"></span></td>
+<td class="grade-cell notfound" title="">?<span class="file-count"></span></td>
+<td class="status-no">✗ Kosong</td>
+<td class="date-cell">-</td>
+</tr>
+<tr data-kk="3.1" data-unsur="4" data-subunsur="4.2" data-status="kosong">
+<td class="kk-cell">3.1</td>
+<td><span class="kode-badge" style="background:#8b5cf6;">4.2.1</span></td>
+<td class="param-text">Terlaksananya komunikasi yang efektif dengan internal dan eksternal</td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1s2dNahHfIqgb5cASGZdZz3y1r0pa45lx" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1zLuNr7G_PaaAU6Id2dJBkaPxMNOM-1VW" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1vdyFJi9A4p8Eaheb_S8SwOZSruMzWKmV" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1r-UI5muSGWJEOP_8Fh24BPymt2NbmN4b" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/16DaBkgr4sP4pjLePjGOJ9r6qXGnvPYqn" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="status-no">✗ Kosong</td>
+<td class="date-cell">-</td>
+</tr>
+<tr data-kk="3.1" data-unsur="5" data-subunsur="5.1" data-status="kosong">
+<td class="kk-cell">3.1</td>
+<td><span class="kode-badge" style="background:#ef4444;">5.1.1</span></td>
+<td class="param-text">Pimpinan K/L/D/penanggungjawab program dan kegiatan/penanggungjawab operasional mengevaluasi secara berkala pengendalian</td>
+<td class="grade-cell notfound" title="">?<span class="file-count"></span></td>
+<td class="grade-cell notfound" title="">?<span class="file-count"></span></td>
+<td class="grade-cell notfound" title="">?<span class="file-count"></span></td>
+<td class="grade-cell notfound" title="">?<span class="file-count"></span></td>
+<td class="grade-cell notfound" title="">?<span class="file-count"></span></td>
+<td class="status-no">✗ Kosong</td>
+<td class="date-cell">-</td>
+</tr>
+<tr data-kk="3.1" data-unsur="5" data-subunsur="5.1" data-status="kosong">
+<td class="kk-cell">3.1</td>
+<td><span class="kode-badge" style="background:#ef4444;">5.1.2</span></td>
+<td class="param-text">Proses manajemen risiko telah direviu</td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1rTMjiTw6JbGUG8kXb36KNWYRYPqf_G97" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/18dggmtRRcLFAnHRJDdFk4zebwtzEAqTX" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1GMFVS1o3e13UVav0MrFqEVlxz65J8O1G" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/10nDPz3vVkowWbSFX5hCPWgfSj1BIz1PM" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1O3J0oNbSb3VbCqGIvjliKyvuCRLyJ_rV" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="status-no">✗ Kosong</td>
+<td class="date-cell">-</td>
+</tr>
+<tr data-kk="3.1" data-unsur="5" data-subunsur="5.1" data-status="kosong">
+<td class="kk-cell">3.1</td>
+<td><span class="kode-badge" style="background:#ef4444;">5.1.3</span></td>
+<td class="param-text">Pemantauan/monitoring terhadap risiko telah dilakukan</td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1uI-2aRfldSo-mPW093XiSo0b3pTHOboz" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/17CCmLd0umf8ThLXtq7-eORrGIDdQSuvW" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/10Y6_LPIMO36dE9ms8rjROjVTkiTXI_lv" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1NZUNDMGfqnVjswi5UF6fAGePoaeYxhpv" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1VwtmSJFocwSmsBDZ0jPzJpaoZZ9s1ocr" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="status-no">✗ Kosong</td>
+<td class="date-cell">-</td>
+</tr>
+<tr data-kk="3.1" data-unsur="5" data-subunsur="5.2" data-status="kosong">
+<td class="kk-cell">3.1</td>
+<td><span class="kode-badge" style="background:#ef4444;">5.2.1</span></td>
+<td class="param-text">Evaluasi terpisah dilakukan oleh pegawai dengan keahlian tertentu yang disyaratkan dan dapat melibatkan APIP atau audito</td>
+<td class="grade-cell notfound" title="">?<span class="file-count"></span></td>
+<td class="grade-cell notfound" title="">?<span class="file-count"></span></td>
+<td class="grade-cell notfound" title="">?<span class="file-count"></span></td>
+<td class="grade-cell notfound" title="">?<span class="file-count"></span></td>
+<td class="grade-cell notfound" title="">?<span class="file-count"></span></td>
+<td class="status-no">✗ Kosong</td>
+<td class="date-cell">-</td>
+</tr>
+<tr data-kk="3.1" data-unsur="5" data-subunsur="5.2" data-status="kosong">
+<td class="kk-cell">3.1</td>
+<td><span class="kode-badge" style="background:#ef4444;">5.2.2</span></td>
+<td class="param-text">Terdapat reviu independen terhadap proses manajemen risiko</td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1TbrqSCBHNpwHXGYTTxKZ_xYpvdvF-U5O" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/13DcNbATba2Mi26rrVf5X68lF3rWkPLRk" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1oWlzW3y6_wuzAJNFDvmCqM2SYdONcnTO" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1AYbsBC_Hew-pLc14elajgRQBqCJ2THt_" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1Q41WlSPVicdEgoNDaqyE0WK1FPYt6zWF" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="status-no">✗ Kosong</td>
+<td class="date-cell">-</td>
+</tr>
+<tr data-kk="3.4" data-unsur="1" data-subunsur="1.1" data-status="kosong">
+<td class="kk-cell">3.4</td>
+<td><span class="kode-badge" style="background:#3b82f6;">1.1.1</span></td>
+<td class="param-text">K/L/D menegakkan integritas dan nilai etika dalam  pelaksanaan tugasnya sesuai peraturan yang berlaku</td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1rt5d12N-a4l2fzsm109G6we3imZhrOyx" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1A90MkC_2KY9uFYPbOpoMSciPAh6bJu_L" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1RX5ZImIB4DmiDt-AEsLN6pGE3Pw94QSh" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1FZJ1UNu5t0rxORhrKUtXSeDMMCMLNDqj" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1t6PEuk-kN-RE7ITVAfhnpqlRo2FwWhiP" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="status-no">✗ Kosong</td>
+<td class="date-cell">-</td>
+</tr>
+<tr data-kk="3.4" data-unsur="1" data-subunsur="1.1" data-status="kosong">
+<td class="kk-cell">3.4</td>
+<td><span class="kode-badge" style="background:#3b82f6;">1.1.2</span></td>
+<td class="param-text">Kebijakan eksplisit atas  pengendalian korupsi yang mencakup pernyataan kebijakan, penetapan struktur pengelola risiko k</td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/16YCBYhrS5UxFeNEilsF0EFcJl9UwDibU" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1rwmKRDXXx-x9cXyt5Szv1W3lejgKRWt9" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/12nvbtkQeqALUlD5xf1K7yxJ2giAZjZue" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1xt3lreckQC0PYBToGWrcXGnlw7NZ0PZy" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1VNVtqVWAJzbRCFnPsQLbuQIHzitUCtp3" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="status-no">✗ Kosong</td>
+<td class="date-cell">-</td>
+</tr>
+<tr data-kk="3.4" data-unsur="1" data-subunsur="1.1" data-status="kosong">
+<td class="kk-cell">3.4</td>
+<td><span class="kode-badge" style="background:#3b82f6;">1.1.3</span></td>
+<td class="param-text">Organisasi menetapkan dan melaksanakan SOP antikorupsi yang mencakup tiga proses prinsip dalam pengelolaan risiko korups</td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1OUi02PhfS3xBT6EK-2DUBCNViiEfNNx3" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1uNL7A0ClOFmCQ_Ocp49y1Yg-FNr2fEeJ" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1W0c8lA5ZbHWl_HtXqsEkyCY9ibdKMg86" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1nMqB8tzxwGw_dyK4aEotwwEGDqhvYmTg" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1SSnqOJV4pa3_CKo98l1YD22M9rpW4gKS" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="status-no">✗ Kosong</td>
+<td class="date-cell">-</td>
+</tr>
+<tr data-kk="3.4" data-unsur="1" data-subunsur="1.1" data-status="kosong">
+<td class="kk-cell">3.4</td>
+<td><span class="kode-badge" style="background:#3b82f6;">1.1.4</span></td>
+<td class="param-text">Tentang proses unit kerja sebagai lingkungan belajar dikelola untuk memungkinkan pegawai di semua level berpartisipasi d</td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/14ZBLRa1g_zbErS8gv7CLl1toUCAzTNtC" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1NY6ASkDJzeSjAl9dq74BKdvxHBy0yDSV" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1qto0NhePoeEZZvPauiaD_D4PNMzdfMwz" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1erghvt4Ysh6rysg9QlAOauxYPv0Y__Y9" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1yIIp_0xxmM2qyyWAMBjfhRQR0cJjGQtP" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="status-no">✗ Kosong</td>
+<td class="date-cell">-</td>
+</tr>
+<tr data-kk="3.4" data-unsur="1" data-subunsur="1.1" data-status="kosong">
+<td class="kk-cell">3.4</td>
+<td><span class="kode-badge" style="background:#3b82f6;">1.1.5</span></td>
+<td class="param-text">Integritas adalah keutamaan-keutamaan (virtues) seperti kejujuran, hal dapat dipercaya (trustworthiness), komitmen terha</td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1VAmqupVMqiERWfWT0RFT6aCBqUWO2ZRA" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1_RP8EUHgB7UkjkI63IVY9sQ3LtG8GSEi" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1m8AtAy6Tzmb-MW0LyZQQL4nV1F1WOv2F" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1NJDdzIy34jcLK_oHycCsqpcopGpF2p6O" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1Rp3OEYZD_6KzX90HE3dI7w4qX3Q--7RD" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="status-no">✗ Kosong</td>
+<td class="date-cell">-</td>
+</tr>
+<tr data-kk="3.4" data-unsur="1" data-subunsur="1.1" data-status="kosong">
+<td class="kk-cell">3.4</td>
+<td><span class="kode-badge" style="background:#3b82f6;">1.1.6</span></td>
+<td class="param-text">Terdapat persepsi bersama oleh semua pegawai secara umum bahwa yang dijadikan acuan utama sebagai perilaku etis adalah p</td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1llWrfcGzYR8lc-j-fakboY0mqD9wVLIb" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1ddIOYJGrCaDYS9x_8jRrwwcabDEkoqDM" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1nK9-I5LOTbd3g1M47jD4ME6yOFS_crv3" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1XnfIOU25amuEjLTQMNVNO6UqvBoEnXfH" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1NZO5Yf7HZ-JplkeR9K1Ruh5qE7uEWZJN" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="status-no">✗ Kosong</td>
+<td class="date-cell">-</td>
+</tr>
+<tr data-kk="3.4" data-unsur="1" data-subunsur="1.1" data-status="kosong">
+<td class="kk-cell">3.4</td>
+<td><span class="kode-badge" style="background:#3b82f6;">1.1.7</span></td>
+<td class="param-text">Mencakup semua langkah tindak lanjut atas indikasi korupsi yang terdeteksi, mulai dari sebatas klarifikasi hingga audit </td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/14WosJE-7hqSZomBKHtKe3LX8Osl-oqYR" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1zNraHdmNJkgmsiAYKAyo0QH61NO1s7in" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1Fu6BFIq1N_A34Q0TAH2RMY4iJ8zLgZrk" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1d5gOHqP6k6JuxDd_jPahPPd7BWVaGLK3" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1q2KvSTvQGEidDTYTsmZvxbPdrZqu78F0" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="status-no">✗ Kosong</td>
+<td class="date-cell">-</td>
+</tr>
+<tr data-kk="3.4" data-unsur="1" data-subunsur="1.1" data-status="kosong">
+<td class="kk-cell">3.4</td>
+<td><span class="kode-badge" style="background:#3b82f6;">1.1.8</span></td>
+<td class="param-text">Semua langkah yang diambil dalam rangka memperbaiki kerusakan yang ditimbulkan oleh praktik korupsi di dalam organisasi </td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1PhXweATARok4MH2QnjCaEhLntSqZBRsr" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1fj8T3AHpb8spbaOziMwj2VkmWp1v2BPz" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/16V5EFkKs9u4Fxf0jgmr-s4EMyOiPFslS" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1WrLMjYc3nz0ke53ZWLhZx9Et6XQKEoFa" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1fCj8OtnvSHCSuBE2xOINEYwffBeWzRAc" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="status-no">✗ Kosong</td>
+<td class="date-cell">-</td>
+</tr>
+<tr data-kk="3.4" data-unsur="1" data-subunsur="1.2" data-status="kosong">
+<td class="kk-cell">3.4</td>
+<td><span class="kode-badge" style="background:#3b82f6;">1.2.1</span></td>
+<td class="param-text">Tugas dan jabatan dalam organisasi dilaksanakan dan diisi oleh SDM yang kompeten</td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1RbDnR161u6LfO1XFlmlAOUgJ0c7EKcRu" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1vsGiCRdizmTNmB8nA94CTI-yUPDYiy3A" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/12JKGbmccX2qzWNm1wy5dZb-xFcfynxD7" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1R8DBrIUK_wc7TP_nibXe9bTT-pyyMLrv" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1mn_g9a76kRN8ADNLChHTJaOTlxAcRVxY" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="status-no">✗ Kosong</td>
+<td class="date-cell">-</td>
+</tr>
+<tr data-kk="3.4" data-unsur="1" data-subunsur="1.3" data-status="kosong">
+<td class="kk-cell">3.4</td>
+<td><span class="kode-badge" style="background:#3b82f6;">1.3.1</span></td>
+<td class="param-text">Pimpinan K/L/D menciptakan lingkungan kerja yang kondusif untuk mendukung ketaatan terhadap peraturan yang berlaku</td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1qFFvbq2NjJvjzJ9RQgBnQAfmzZnIOiZ1" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1jfbvi8dgEIfXIe3ELDt-NAWf4HmF-ASu" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1GobJLkXr6vKBBoV-N_7WK66BWCsHmXL3" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1udZtZDhYheA9sAjIzFXQ4xkhY8M7Wm7U" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1oNz-eh5d2EQi_AQ5skjAfIDUKOU-9Qz5" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="status-no">✗ Kosong</td>
+<td class="date-cell">-</td>
+</tr>
+<tr data-kk="3.4" data-unsur="1" data-subunsur="1.3" data-status="kosong">
+<td class="kk-cell">3.4</td>
+<td><span class="kode-badge" style="background:#3b82f6;">1.3.2</span></td>
+<td class="param-text">Pimpinan K/L/D mengalokasikan sumber daya untuk penerapan manajemen risiko</td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1vyABW7coZ9kNSu_2hn9Mz7bXbg0UdUJw" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1Vl0A3WFWnAheZRd5trzcHDgmzGFCghku" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1FqO1B5KH2OzKRdH6YPkMQaZK5EWWeHw4" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1QM994EP8n3fm_MaCAzVhrwNKgOVSnSdl" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1PWYI8RUMV2d4Ut_ErI3ggYDXT2KUUSQQ" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="status-no">✗ Kosong</td>
+<td class="date-cell">-</td>
+</tr>
+<tr data-kk="3.4" data-unsur="1" data-subunsur="1.3" data-status="kosong">
+<td class="kk-cell">3.4</td>
+<td><span class="kode-badge" style="background:#3b82f6;">1.3.3</span></td>
+<td class="param-text">Pimpinan K/L/D menggunakan informasi terkait risiko dalam pengambilan keputusan</td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/123K3ysDGXe6_WJjfOdHN3-pd4CHYCzqm" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1nGBn4fjBeUZamoqHjz88TlM8x32rpGl3" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1xf03vesruXDpDasnphdh0Aa1_U11t6G8" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1ULGuexbllM1L0ScMKtdXYSJfcZ-ivc8T" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1nIdJlZUwaXDOIPIYPdrEnqiqJmA70Jy6" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="status-no">✗ Kosong</td>
+<td class="date-cell">-</td>
+</tr>
+<tr data-kk="3.4" data-unsur="1" data-subunsur="1.3" data-status="kosong">
+<td class="kk-cell">3.4</td>
+<td><span class="kode-badge" style="background:#3b82f6;">1.3.4</span></td>
+<td class="param-text">Pimpinan K/L/D mendorong penerapan manajemen risiko, melalui penggunaan kinerja penerapan manajemen risiko sebagai indik</td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1NgHGMHVaFb0yMvJEImUGoOiI9XJlIyZ_" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1JR8-Gr8QT77-dOWtB9ePY3xMznhr2Hb0" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/13w1MEeYJbaGUVwvqGpEhi00fStm6kRlq" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1t-if1HaxKG59by33GDwzIHxgomI9Qgky" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1pfo0y6eN9-5_-yaLQ2lNfYynmDXW6rgE" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="status-no">✗ Kosong</td>
+<td class="date-cell">-</td>
+</tr>
+<tr data-kk="3.4" data-unsur="1" data-subunsur="1.3" data-status="kosong">
+<td class="kk-cell">3.4</td>
+<td><span class="kode-badge" style="background:#3b82f6;">1.3.5</span></td>
+<td class="param-text">Program antikorupsi didukung dengan penyediaan alokasi sumberdaya secara eksplisit dan memadai, baik anggaran, personil,</td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/17YjK4y4k1rfgEgnkf7DJSpnZ6n_hvP_T" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/15nVpxgZlNb1b1Ym7XsfZI_AkFnaKOR28" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1zce0ppKnPgkWz2Y4vyNQ0BvJog5XFOnW" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1_yhJO1MRJ23plWiqEUsGEueBMt9pdJEM" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1P4W6la08dSmorKJwT6zEvGLzd84OpEjM" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="status-no">✗ Kosong</td>
+<td class="date-cell">-</td>
+</tr>
+<tr data-kk="3.4" data-unsur="1" data-subunsur="1.3" data-status="kosong">
+<td class="kk-cell">3.4</td>
+<td><span class="kode-badge" style="background:#3b82f6;">1.3.6</span></td>
+<td class="param-text">Faktor kekuasaan dan wewenang yang melekat pada pimpinan unit kerja dipakai untuk tujuan mengelola risiko korupsi secara</td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1KFGIYvTztHFcxg-2_irKCuF5otP9BA1q" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1fE3EJr2qL5oBVqvXE5qompvLm0KX5SAP" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1eVb1SvA6B8U3Lt6RCKwurosHi2Y7XWFF" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1-CDt_sPGKYG5dY6-rx5Xl4FNkS0GK1l3" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1L1jt48RXzp2AhUNKVYDNbcLuRo_Eg0FB" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="status-no">✗ Kosong</td>
+<td class="date-cell">-</td>
+</tr>
+<tr data-kk="3.4" data-unsur="1" data-subunsur="1.3" data-status="kosong">
+<td class="kk-cell">3.4</td>
+<td><span class="kode-badge" style="background:#3b82f6;">1.3.7</span></td>
+<td class="param-text">Pemimpin adalah penerap kaidah perilaku etis sekaligus menerapkannya dalam manajemen, artinya menjadikan nilai-nilai eti</td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1QOTc2mzfF6n0aOpDmMOVuXmuG-86Fd4T" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/18-TH5EpqNjyKSjgjyItfa9OtCNYRNXaQ" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1sodEhhKP-OTvDxxKKbxj3-J2jSpyWtsM" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1xdvPWLkoAHeSb4lE9Db2M4wwoQQHIxCN" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1unEwCoGFn9aB9ZyMZ9tijIBNUHZ_mDRt" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="status-no">✗ Kosong</td>
+<td class="date-cell">-</td>
+</tr>
+<tr data-kk="3.4" data-unsur="1" data-subunsur="1.4" data-status="kosong">
+<td class="kk-cell">3.4</td>
+<td><span class="kode-badge" style="background:#3b82f6;">1.4.1</span></td>
+<td class="param-text">Dalam struktur organisasi terdapat unit yang melaksanakan fungsi kepatuhan internal.</td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1vo8Vo5DSmh-DuYlJXSEq2Jl9YiDj0Ufo" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1VOuWEsMVqDvtGBPJwKF8Rz2zEHfhCbnz" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1Lal3G-fJDfJhqqd2_EmiRgdevzgWJ6Wt" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1TnPxI0sFdyiAcMFkvPsdR07v0eJNNk09" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1U3qO6TQVJvWcejXdahiPJu-9_I1f7fZ3" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="status-no">✗ Kosong</td>
+<td class="date-cell">-</td>
+</tr>
+<tr data-kk="3.4" data-unsur="1" data-subunsur="1.5" data-status="kosong">
+<td class="kk-cell">3.4</td>
+<td><span class="kode-badge" style="background:#3b82f6;">1.5.1</span></td>
+<td class="param-text">Pendelegasian wewenang dan tanggung jawab dalam pelaksanaan tugas dan fungsi telah memperhatikan benturan kepentingan</td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1gkFKaPqHRNoFoVsPZPCXT21S3b2EouLY" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1mqCX_v8Hp7d-54nu3rg35vMv3OgsMTe2" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1fgXoyoJl77irAPuxSpOqATGR2AIQLW8a" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1r3w2A1_fOC3SSk0tiyGh6WJI29K_kCiU" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1L3WMqgyjWr8EEytr0dUkTp_K8wemf9CR" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="status-no">✗ Kosong</td>
+<td class="date-cell">-</td>
+</tr>
+<tr data-kk="3.4" data-unsur="1" data-subunsur="1.6" data-status="kosong">
+<td class="kk-cell">3.4</td>
+<td><span class="kode-badge" style="background:#3b82f6;">1.6.1</span></td>
+<td class="param-text">Penerapan kebijakan manajemen dan praktik pembinaan SDM telah sesuai dengan peraturan yang berlaku</td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/14234ly3Sn6w9x4wtpUFQh7L-k4NK8-1y" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1klMTSowf3wqwpbPs5tf2PPvChnKMtIYE" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1qtjUrMpMMV_rX8qrF3O-oFxBpH16ckZI" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1WYt18egNTlOacJNzkZO-_iqfhpRy70Ra" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1UKk6sYjy8Fvpc_hnGTWd9xg654K6poaT" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="status-no">✗ Kosong</td>
+<td class="date-cell">-</td>
+</tr>
+<tr data-kk="3.4" data-unsur="1" data-subunsur="1.6" data-status="kosong">
+<td class="kk-cell">3.4</td>
+<td><span class="kode-badge" style="background:#3b82f6;">1.6.2</span></td>
+<td class="param-text">Pegawai telah mendapatkan fasilitas untuk meningkatkan kompetensi dan keterampilan terkait manajemen risiko</td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/10pBkzbNzXL7dBTGietlozMYMxPOxou4L" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1DFHY1m2du4ZZBvvURqRZh6-cX5mKgvJ9" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/19Bk26cz4tN4pDpO17jR_9qFrfQvBXu7i" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1M7LI4IibC_l4m4Ns7Lg46p7WMq3KLwuA" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/16PAxe7jNBvCDSuXiKFC28EyvBznz1Nca" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="status-no">✗ Kosong</td>
+<td class="date-cell">-</td>
+</tr>
+<tr data-kk="3.4" data-unsur="1" data-subunsur="1.6" data-status="kosong">
+<td class="kk-cell">3.4</td>
+<td><span class="kode-badge" style="background:#3b82f6;">1.6.3</span></td>
+<td class="param-text">Pegawai memiliki kesadaran terkait manajemen risiko</td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1odIqX8vhP2oDVB0yb2RogOaRdER0tgQk" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/18V5LQqUsk8TGcR7R_sdEA9cUtWjhi1ji" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1cAMWEEyvbEiwLBPpjnkuUWCLsXFox_Ej" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1kV0sOtkn8A-JMCT5aOA-W8yZpNihRO8R" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1zbX9X5BfHNA4CGIGwcwq2kyutaIgI5QJ" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="status-no">✗ Kosong</td>
+<td class="date-cell">-</td>
+</tr>
+<tr data-kk="3.4" data-unsur="1" data-subunsur="1.7" data-status="kosong">
+<td class="kk-cell">3.4</td>
+<td><span class="kode-badge" style="background:#3b82f6;">1.7.1</span></td>
+<td class="param-text">Pengawasan APIP telah dapat memberikan nilai tambah pada perbaikan pengendalian organisasi</td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1z6v3-dNWnn4g3OeYDU7o7uBoTv-Rk-7W" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1U8WKobSBHaFfUVGIudjuDVg6tDj93hij" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/17wJfsYweC_KN4qyfWiyouws6pex877hf" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1AP2MCRO96p6qO4cyFf0P3vvZvjsJiVFb" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/100S2nMYESUPazGAuSyPgYWeHjYmDUtdy" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="status-no">✗ Kosong</td>
+<td class="date-cell">-</td>
+</tr>
+<tr data-kk="3.4" data-unsur="1" data-subunsur="1.8" data-status="kosong">
+<td class="kk-cell">3.4</td>
+<td><span class="kode-badge" style="background:#3b82f6;">1.8.1</span></td>
+<td class="param-text">Pimpinan K/L/D menjalin hubungan kerja yang baik (kemitraan) dengan instansi lain terkait pencegahan dan pengendalian ke</td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1JJ21AIu9mrKHcbHl6Dps0H9db-ukxL53" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1ckJHVudp6FA6BPsQ3q7P83IiUX0yGvsG" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1qykWzKlsJiX-iiGBlIMAGT_C7255TIml" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1pvUd2l_AFlwevA7JgoDmtGfvFkCs4VyZ" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1fNse5o3JMMwSM7cBcLPf9eVLElpPMUEE" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="status-no">✗ Kosong</td>
+<td class="date-cell">-</td>
+</tr>
+<tr data-kk="3.4" data-unsur="1" data-subunsur="1.8" data-status="kosong">
+<td class="kk-cell">3.4</td>
+<td><span class="kode-badge" style="background:#3b82f6;">1.8.2</span></td>
+<td class="param-text">Dalam rangka menciptakan hubungan kerja yang baik, K/L/D telah mengidentifikasi, menilai, dan mengelola risiko (termasuk</td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1y0rnQvH082zTv84-auJNbuXRWSKtWdIv" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1WLCyYMDogiaUTTd8fw0QeHC-gt4a3g6p" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1uSWrbOt1kco4Dy52QkV3mQQ1ZXa-ifNy" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1xwhdU3cxLrtP7OLQAg46LP5gE2Zm7HBf" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1UgqCchmJ0KoGuwM-BcTdF3RQvVswsI9E" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="status-no">✗ Kosong</td>
+<td class="date-cell">-</td>
+</tr>
+<tr data-kk="3.4" data-unsur="2" data-subunsur="2.1" data-status="kosong">
+<td class="kk-cell">3.4</td>
+<td><span class="kode-badge" style="background:#f59e0b;">2.1.1</span></td>
+<td class="param-text">K/L/D telah memiliki Kebijakan Manajemen Risiko</td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1wcY-ILA6Cj4VpVcM5VMJ2xD22-4mrjTr" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1Jnt1Sy0l6Yx9zFAEC1OQ5GkQGJMqHTCe" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1mcHdPNPP4LRSFpWcGmxOev4i-W2OHJ2G" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1PYAtgNmC-GgkYv7L7Xvl4M09fyWLTjiY" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1aOwagjoZQVB4qXDrbHBUX4AFfQk5TqRj" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="status-no">✗ Kosong</td>
+<td class="date-cell">-</td>
+</tr>
+<tr data-kk="3.4" data-unsur="2" data-subunsur="2.1" data-status="kosong">
+<td class="kk-cell">3.4</td>
+<td><span class="kode-badge" style="background:#f59e0b;">2.1.2</span></td>
+<td class="param-text">Risiko telah teridentifikasi dan  dituangkan dalam register risiko</td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/119-LXf8CM2ovzbgo_aOmLZ-OWTNuQQxv" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1cBy93ooCVqEbshzlE2BlSS28wUiyKiiU" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1EXTasg84oVl1fdNg4KkxLqEngB8iScRS" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/11unpiSIUtiFyosVEWehkkeSR2dkiGDdu" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1Yy0H8RYvrjaxWf58KPRod7p3Dghhrs5X" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="status-no">✗ Kosong</td>
+<td class="date-cell">-</td>
+</tr>
+<tr data-kk="3.4" data-unsur="2" data-subunsur="2.1" data-status="kosong">
+<td class="kk-cell">3.4</td>
+<td><span class="kode-badge" style="background:#f59e0b;">2.1.3</span></td>
+<td class="param-text">Proses manajemen risiko telah melekat pada proses bisnis K/L/D</td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/13vfmnryv4lhutfO1XLqX6NOl8lG-Tp1i" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1IYg40hxY8nEl8PsI19C8x3IH4-0n712x" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1jcdxQ3qPaZIUkSKXBhf3TvnUWU40_is0" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1AF_jIpwMJlTS4VEZ0di6UGGQMz2oKVnF" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1Nfxy2O8oeeOPVtBNdDNsCrcRM1V1T_CK" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="status-no">✗ Kosong</td>
+<td class="date-cell">-</td>
+</tr>
+<tr data-kk="3.4" data-unsur="2" data-subunsur="2.2" data-status="kosong">
+<td class="kk-cell">3.4</td>
+<td><span class="kode-badge" style="background:#f59e0b;">2.2.1</span></td>
+<td class="param-text">Seluruh risiko telah dianalisis dampak dan tingkat keterjadiannya</td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1o5is1ZnYQwBu_0AFhGjA9RkNjyXV_dMv" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1A6-K3d3HVFozqL8OiWY6tNKkq1RULc0a" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1QmaAyZFf9bg7ib3wPgt2kQE-3Frdflgv" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1pJ9eGrPMs9m_G4wMAY4p8QEwJcamR6Ol" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/14ErG3rlZ7MczUoNZwY0SwAcB7nvZel76" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="status-no">✗ Kosong</td>
+<td class="date-cell">-</td>
+</tr>
+<tr data-kk="3.4" data-unsur="2" data-subunsur="2.2" data-status="kosong">
+<td class="kk-cell">3.4</td>
+<td><span class="kode-badge" style="background:#f59e0b;">2.2.2</span></td>
+<td class="param-text">K/L/D telah menentukan prioritas risiko</td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1-tEPSFaRJc0WJol4PYgDSKv-EXms7yIE" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1R349f-sc0YJWhYPm0TtCiah1B8cyIpHm" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1_HnmhSXPq3JWhiLyFHHlKFp3ewWw3Xgb" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1WoApyV2v98vQWOQEC0mdIuPUzHN9tMus" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1XHeMdtsWlctMUDVCDVyL9gvY1LlmWHkW" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="status-no">✗ Kosong</td>
+<td class="date-cell">-</td>
+</tr>
+<tr data-kk="3.4" data-unsur="2" data-subunsur="2.2" data-status="kosong">
+<td class="kk-cell">3.4</td>
+<td><span class="kode-badge" style="background:#f59e0b;">2.2.3</span></td>
+<td class="param-text">K/L/D telah menentukan rencana tindak pengendalian</td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/19IiD8kClPw9myKegczPbz341E0aha0aI" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1se-3imErWg8325aTxAjTK6bYLe0VSrFM" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1yOi-89piLEoZS9L329ePxEa-ogKnEv0i" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1UaHBOq6ytZ_gvTkEdGRtsvpvysgsL_n9" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1SLt1xReUUHTIYBNADgiDHORB_EnhIT9h" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="status-no">✗ Kosong</td>
+<td class="date-cell">-</td>
+</tr>
+<tr data-kk="3.4" data-unsur="2" data-subunsur="2.2" data-status="kosong">
+<td class="kk-cell">3.4</td>
+<td><span class="kode-badge" style="background:#f59e0b;">2.2.4</span></td>
+<td class="param-text">Tindak pengendalian telah diimplementasikan</td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1VnY8zRUjclTXe4gh4OK89J04d-aemjNR" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1FaH6YSGzwtaqEtvgchAw7iJxSxCiMalh" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/189ahKiKprR9D_Hfc00vXPt4f8ceKycaD" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1j0Wz6zIGYAhYmYaqgynOgcUUxsEqE9Ir" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1Pv7FVgYNdE3d-lKRlH4Spl1X3-tpqjnp" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="status-no">✗ Kosong</td>
+<td class="date-cell">-</td>
+</tr>
+<tr data-kk="3.4" data-unsur="2" data-subunsur="2.2" data-status="kosong">
+<td class="kk-cell">3.4</td>
+<td><span class="kode-badge" style="background:#f59e0b;">2.2.5</span></td>
+<td class="param-text">Tindak pengendalian efektif menurunkan risiko</td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1TXLinCGDvnOZhyJDIelikxrvsGrH9o9k" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1WuI5raLlP53CmbHWvxjydFZhhrpQvufL" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1W4X7_9RN0IjP9lU2OdWvQdTQxQttV7vV" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1ire-dDt1jNhk_7UfcPhIe64dZvOgDiBp" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1vxB49rSKkx0xVxXSWc51PLxth1Rl0XRk" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="status-no">✗ Kosong</td>
+<td class="date-cell">-</td>
+</tr>
+<tr data-kk="3.4" data-unsur="2" data-subunsur="2.2" data-status="kosong">
+<td class="kk-cell">3.4</td>
+<td><span class="kode-badge" style="background:#f59e0b;">2.2.6</span></td>
+<td class="param-text">Merupakan kegiatan yang terstruktur dan sistematis dalam mengidentifikasi, menganalisis probabilitas dan signifikansi da</td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1yMIpcx-GyoCJ9g_bg8neo5J9LBPhKchS" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1HUkeTR7RIGtHyULY7dGPHNHD8G9i0IDq" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1aIjyO0WFebcQzoIBmoOcuRaY3FPD-ZHk" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1XlD6-ivfNkqIcsCN1fAqSIrP5Zlyo6gv" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1av2FlxXnxYOJH3Oj95E5iyh-tg8xcVAe" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="status-no">✗ Kosong</td>
+<td class="date-cell">-</td>
+</tr>
+<tr data-kk="3.4" data-unsur="3" data-subunsur="3.1" data-status="kosong">
+<td class="kk-cell">3.4</td>
+<td><span class="kode-badge" style="background:#10b981;">3.1.1</span></td>
+<td class="param-text">Pimpinan K/L/D membandingkan tolok ukur kinerja dengan capaian kinerja secara berkala untuk mengatasi hambatan kinerja, </td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/11LdBKituRUGlVAaiKSZ1FgQfzCN9AKna" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1KsWpBc04DIWLM-y1nhaq-DWEWypT2t8V" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1BnC5e8PdH5E8aeIOvT371xZxrCXp-Ldh" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1hBKGxA94RLYCepUhYvRZmGL6RQXmwvK6" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/16sBMUF3y7fMY-dIcyOHLB_OKM_MI8PpI" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="status-no">✗ Kosong</td>
+<td class="date-cell">-</td>
+</tr>
+<tr data-kk="3.4" data-unsur="3" data-subunsur="3.10" data-status="kosong">
+<td class="kk-cell">3.4</td>
+<td><span class="kode-badge" style="background:#10b981;">3.10.1</span></td>
+<td class="param-text">Terdapat pertanggungjawaban seseorang atau unit organisasi dalam mengelola sumber daya yang diberikan/dikuasakan kepadan</td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1qu7nff4pXowGyOEpE6-mMNj2j4EVG9RC" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1tWK_uMLjrqWSWef80bYuxMZ6knLfbFAM" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1wJUQhZOjJZXZQqmroGxaD8rYSlNhi0-j" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1sO8ldRV_G7DYdeLxXt71T4AqdWQ2s5PR" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1m8Q3bMEKjs4nAiBNxDs2UeXRHlMYcKwF" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="status-no">✗ Kosong</td>
+<td class="date-cell">-</td>
+</tr>
+<tr data-kk="3.4" data-unsur="3" data-subunsur="3.11" data-status="kosong">
+<td class="kk-cell">3.4</td>
+<td><span class="kode-badge" style="background:#10b981;">3.11.1</span></td>
+<td class="param-text">Terdapat pengelolaan, pemeliharaan, dan pendokumentasian secara berkala yang mencakup seluruh SPI serta transaksi dan ke</td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1vXuK80aSvFB_Sd44Ue-w-zCq5N-ALvlR" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1ljYVshm8vPGMu1Rirw8TDjnDaossrad6" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1iJ1ba9bzhjPGauM-eNaPhXCK-ptTg8u4" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/10TDFFdF66d1WSyTSh4yLXlkgFiUVPlBc" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1Dk3zKvPj0lGliJbTJEMJhtZrHGZPA3cu" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="status-no">✗ Kosong</td>
+<td class="date-cell">-</td>
+</tr>
+<tr data-kk="3.4" data-unsur="3" data-subunsur="3.2" data-status="kosong">
+<td class="kk-cell">3.4</td>
+<td><span class="kode-badge" style="background:#10b981;">3.2.1</span></td>
+<td class="param-text">Pembinaan SDM dilakukan sesuai peraturan perundangan yang berlaku sehingga setiap pegawai dapat memberikan manfaat optim</td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1ILEOIUTeVeNBYaws1wA6qivRL7He-r9h" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1RYw4brv_UHhgV2BdAR5x4rK1wEeYxxRX" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1GQQdfFB0J0-ofoYQ8qX51Q6wzg4Desnx" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/15Y4eCrpnc9ERvnDwfzOdftAlCBrTbg_V" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1KxOGABXq67_ERR-ZQ-11aqSz6c5bC50G" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="status-no">✗ Kosong</td>
+<td class="date-cell">-</td>
+</tr>
+<tr data-kk="3.4" data-unsur="3" data-subunsur="3.3" data-status="kosong">
+<td class="kk-cell">3.4</td>
+<td><span class="kode-badge" style="background:#10b981;">3.3.1</span></td>
+<td class="param-text">Pengendalian atas pengelolaan sistem informasi dilakukan untuk memastikan tidak terjadi kecurangan/fraud</td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1xVPoLXG2HNjDKawNKwifaQQb-MtTx8ri" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1t4EgRo1YkCqwIqpfVlISOJCNN4b_S1Bt" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1Uxdqboq3CbhL82xEKbo4wgqHURZ6D7vK" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1HQSyCZy9qRmOFG7A16ugx4Lnl5I1_uIn" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1JCD4hHdEyrA_AjlKdm90r28ptA39Pxcw" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="status-no">✗ Kosong</td>
+<td class="date-cell">-</td>
+</tr>
+<tr data-kk="3.4" data-unsur="3" data-subunsur="3.4" data-status="kosong">
+<td class="kk-cell">3.4</td>
+<td><span class="kode-badge" style="background:#10b981;">3.4.1</span></td>
+<td class="param-text">Pengelolaan BMN/D dilakukan untuk menjamin  BMN/D digunakan sesuai peraturan yang berlaku (tidak terjadi pelanggaran huk</td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1mre9PpVMHWs5SYWgrpJgSdPAqKtVdynj" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/11jRW5zrVUBC2JYn5sf6La_xVksE3Siv7" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1KVRb0TeU6E_lYyTJn3YHEcCPq2MsA6YR" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1PL2TmAwRUxRj6nKvTklpUYoXdYiLsljE" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1NG-AoX_eIrcRnEVoTiOH6NlocaKXDF2J" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="status-no">✗ Kosong</td>
+<td class="date-cell">-</td>
+</tr>
+<tr data-kk="3.4" data-unsur="3" data-subunsur="3.5" data-status="kosong">
+<td class="kk-cell">3.4</td>
+<td><span class="kode-badge" style="background:#10b981;">3.5.1</span></td>
+<td class="param-text">Kegiatan pengendalian atas penetapan dan reviu atas indikator dan ukuran kinerja dilakukan untuk menjamin keandalan ukur</td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/15NhiCGFk7diDcPDPsYnZH-tvzssVe1VF" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/11TnjFDxqvSfBj2evWJTB0uet1kLv19xM" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1Nb6UCpb4k-Gr9JL66lguE1tirMXhykbC" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1vcpNhcQ7NoiNL9ZPMKgAsPzYyOr-1it7" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1NBTG3ktL0vleXR-Mq9w-2VWeVHw7OAET" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="status-no">✗ Kosong</td>
+<td class="date-cell">-</td>
+</tr>
+<tr data-kk="3.4" data-unsur="3" data-subunsur="3.6" data-status="kosong">
+<td class="kk-cell">3.4</td>
+<td><span class="kode-badge" style="background:#10b981;">3.6.1</span></td>
+<td class="param-text">Terdapat pemisahan fungsi sehingga seluruh aspek utama transaksi dan kejadian tidak dikendalikan hanya oleh satu orang</td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1WUEJhnc7cFMwfPQ5ODvAXTgATN09uGFX" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/10RILFZtXp-ECMxliLKRwiN2V_jWwHCkH" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1EXOv7K88DOp97J7_GV_FDuPm59eJaY6l" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1Jh2ka7gAi-erKeChFvUyNl4aMBdX92XS" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1OKVJ9i3kPsBBCZdXk-H2ZJ_TRa5IiRLi" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="status-no">✗ Kosong</td>
+<td class="date-cell">-</td>
+</tr>
+<tr data-kk="3.4" data-unsur="3" data-subunsur="3.7" data-status="kosong">
+<td class="kk-cell">3.4</td>
+<td><span class="kode-badge" style="background:#10b981;">3.7.1</span></td>
+<td class="param-text">Terdapat proses untuk memastikan transaksi dan kejadian penting hanya dapat diotorisasi ketika memenuhi persyaratan dan </td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1_U07jfcd1QQGVxclzn0UtATSr067mjo_" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1nBcZFIq3e4rDJoZ9IDg7fzBnRfbsu-Wt" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1qveF_wbODvJAMJ9Zl3Uofe2qqdr5OELu" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1g6DS7KzYQ_F4qR4vujnFuxRtdCtjZH6w" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1fMeoK0PJ7ZM0QlD780DIIgNAt1uM48H3" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="status-no">✗ Kosong</td>
+<td class="date-cell">-</td>
+</tr>
+<tr data-kk="3.4" data-unsur="3" data-subunsur="3.8" data-status="kosong">
+<td class="kk-cell">3.4</td>
+<td><span class="kode-badge" style="background:#10b981;">3.8.1</span></td>
+<td class="param-text">Terdapat proses untuk memastikan transaksi telah diklasifikasikan dengan layak dan dikelompokkan dengan benar serta dica</td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1fmrfkyKsPqauXfq7AUQ7VvCXJgxy0F-H" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1uYY-htVyn9TUdGcW5504zin0Al5VW-Ky" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1PQC65DUYm5FsJcCanTe7DwCwxCN6ji9S" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1aa2D15GNoRybsOlOn4yagZif4sy8lVBv" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/10QrlFys4_6bObsPeteqjUyvsDEOHoFRG" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="status-no">✗ Kosong</td>
+<td class="date-cell">-</td>
+</tr>
+<tr data-kk="3.4" data-unsur="3" data-subunsur="3.9" data-status="kosong">
+<td class="kk-cell">3.4</td>
+<td><span class="kode-badge" style="background:#10b981;">3.9.1</span></td>
+<td class="param-text">Terdapat pembatasan atas kesempatan dan hak untuk menggunakan, atau memperoleh sumber daya dan mengakses pencatatannya</td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1HNckKsKO1b_xubOZ-bBbH2IhXE7Ejbv-" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1rvpjM67izEW6fyAJRDH_NHKFvrHV6Nwz" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1_YmgPot1GHxBZnrGvBb1YUXgXPotW4Oa" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1UGpYA0s90zBY7vYTLrtIAO72I-Rw4k10" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/15NAGbdA4Yn4axUiZgd4JQaR468eTH_Mh" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="status-no">✗ Kosong</td>
+<td class="date-cell">-</td>
+</tr>
+<tr data-kk="3.4" data-unsur="4" data-subunsur="4.1" data-status="kosong">
+<td class="kk-cell">3.4</td>
+<td><span class="kode-badge" style="background:#8b5cf6;">4.1.1</span></td>
+<td class="param-text">Tersedianya informasi yang relevan untuk kebutuhan internal dan eksternal dalam upaya pencegahan dan pengendalian kecura</td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1_0hRom_H2484pkFa343LW1r2Dr6Cg22L" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1aWLSisxj8ZiLxk15eCtrAo0O9R10vSX5" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1xlp_C9Q47_oMHR8qrUZSuQJtsVN2BVMu" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1Ek1TouE6RkvZ1XCB0Ts_ryKErpipPqBB" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1aFZGTFmXtfHli85-M-81kx2IY8DpKgmz" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="status-no">✗ Kosong</td>
+<td class="date-cell">-</td>
+</tr>
+<tr data-kk="3.4" data-unsur="4" data-subunsur="4.1" data-status="kosong">
+<td class="kk-cell">3.4</td>
+<td><span class="kode-badge" style="background:#8b5cf6;">4.1.2</span></td>
+<td class="param-text">Pimpinan K/L/D membangun sistem pengaduan</td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1bL_epQLhvUimgdFfiAN-p-BKAAJxj4e4" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1RCqx8Ot7wPhyw4D2-JbaLafTKEV-iiDI" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1lEbNFWg0XUMJwKZcj1E4bZMskUsAGUCv" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/17cdgvFzbqMdMj0Cq8hH3O0xx2yzI7RXN" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1qIrVxqVj1oxsPY6C-IhsHEqMDf9lWwxU" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="status-no">✗ Kosong</td>
+<td class="date-cell">-</td>
+</tr>
+<tr data-kk="3.4" data-unsur="4" data-subunsur="4.1" data-status="kosong">
+<td class="kk-cell">3.4</td>
+<td><span class="kode-badge" style="background:#8b5cf6;">4.1.3</span></td>
+<td class="param-text">Strategi dan kebijakan manajemen risiko telah dikomunikasikan.</td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1rIxVjmkX9BVHykd-x6sVl8z3qxyDf58K" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1EV9pYPHcXu0zdKDoAhyEYbtfIV_WN5bU" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1x_dzH-_MICLnKOWKniQREEZ3xxjH_rNz" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/12fhN-Rj7Z4bfcQnZxIQPyep4Ja39cOlU" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1oJU3rBhVgd3Bkp6vJg_q9ih8WQ6VfWn5" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="status-no">✗ Kosong</td>
+<td class="date-cell">-</td>
+</tr>
+<tr data-kk="3.4" data-unsur="4" data-subunsur="4.1" data-status="kosong">
+<td class="kk-cell">3.4</td>
+<td><span class="kode-badge" style="background:#8b5cf6;">4.1.4</span></td>
+<td class="param-text">Register risiko dan rencana tindak pengendalian telah dikomunikasikan ke pihak terkait</td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/109ne9Uk-5O4ivQD73LyYhSqR5RrUGCVg" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1t29POX_nfy8AbX8Xr_4M23pyJURk3FLD" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/15Je74Bm5ArMV4xJVRhjTfVCEeFC778nc" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1V5WxT5bKlFa4uY4lcdT4I2C3Hu5GEz7Z" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1Ci1aglCtjI0tLJFpPMf40EYE1twCfn2A" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="status-no">✗ Kosong</td>
+<td class="date-cell">-</td>
+</tr>
+<tr data-kk="3.4" data-unsur="4" data-subunsur="4.1" data-status="kosong">
+<td class="kk-cell">3.4</td>
+<td><span class="kode-badge" style="background:#8b5cf6;">4.1.5</span></td>
+<td class="param-text">Saluran pelaporan internal yang dikelola secara kredibel dalam menerima pelaporan dan memberikan perlindungan kepada pel</td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1ahkwvmtBZ37vZ1W92doK7gm7QaZeF0Bu" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1cAw8JrPiVO5t5IupggZe8qah226BNDyw" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1U7pGWGVmtCIowoGJHa2P1V04Ldt8xyxi" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1YLqKyxOM3-txlIkkd4DzEjs6Y6Qx4CMO" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1NqpV3UpRzaQB0mZahhCpI0m6KxKlEWLg" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="status-no">✗ Kosong</td>
+<td class="date-cell">-</td>
+</tr>
+<tr data-kk="3.4" data-unsur="4" data-subunsur="4.2" data-status="kosong">
+<td class="kk-cell">3.4</td>
+<td><span class="kode-badge" style="background:#8b5cf6;">4.2.1</span></td>
+<td class="param-text">Terlaksananya komunikasi yang efektif dengan internal dan eksternal dalam upaya pencegahan dan pengendalian kecurangan/f</td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1aXdQmM8XMgqlQ2sPtkzsjwr5rQv39M0n" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1sP4NkU-bJuL15c3sVlEK2SkKlsMKzLEk" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1_0zlGIr56JO_5iuoXYAUgiqfUQJLdhnT" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1XSCo9_GyDEd6oWZ0-lsXaBHyz3BIjnND" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1S0fARHAAUDcjicEfAOJI8BbXjnfc8pHU" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="status-no">✗ Kosong</td>
+<td class="date-cell">-</td>
+</tr>
+<tr data-kk="3.4" data-unsur="5" data-subunsur="5.1" data-status="kosong">
+<td class="kk-cell">3.4</td>
+<td><span class="kode-badge" style="background:#ef4444;">5.1.1</span></td>
+<td class="param-text">Pimpinan organisasi/penanggungjawab program dan kegiatan/penanggungjawab operasional mengevaluasi secara berkala pengend</td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1xqvVfLAwTTiHDbFAyGrACMZUJxauxyRh" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1-UXaM6xtGkAwEwMEWH5_37-CAszk6Z82" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1GI5YhkHiEe9An578cGUj1s-_roMz-PMh" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/13Yau4GRH0qwJNryJeL50dpg2O_zZ3kSF" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1k1Pyc_OyacU6AB9dnth77fjjt1ZPINoD" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="status-no">✗ Kosong</td>
+<td class="date-cell">-</td>
+</tr>
+<tr data-kk="3.4" data-unsur="5" data-subunsur="5.1" data-status="kosong">
+<td class="kk-cell">3.4</td>
+<td><span class="kode-badge" style="background:#ef4444;">5.1.2</span></td>
+<td class="param-text">Proses manajemen risiko telah direviu</td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1hofoLoTTaoQVi_eE2j7SkkrCNQj2fg9W" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1U2J0_JjQezQUjv-jM2rrLH5Aa3zpkM3z" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1ykMRJZkWvzFqnZVWQNKFVtJDktw1tXk6" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1X1fRsFT3LfJocw6WZjKKEl43G2GmN0Hb" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1Bz0tFhSnzum1ES86q6V-fYJRl_QADJbH" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="status-no">✗ Kosong</td>
+<td class="date-cell">-</td>
+</tr>
+<tr data-kk="3.4" data-unsur="5" data-subunsur="5.1" data-status="kosong">
+<td class="kk-cell">3.4</td>
+<td><span class="kode-badge" style="background:#ef4444;">5.1.3</span></td>
+<td class="param-text">Pemantauan/monitoring terhadap risiko telah dilakukan</td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1XMv92Y98oOJ1n-O-c_fZ95DBmqXRfXTS" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1k4p7pKsXP5vawMlOYw2SiAjFZ6O_B6_e" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1O2OWEiftrgx0fpbkAIzvcEEfJ4HnBnZc" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/19rfdHdFSSCd2bs97RgkawqfRJ-NkihCg" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/19e16Nx5ExXrcaC9q3OULYcx8UDHNnVAX" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="status-no">✗ Kosong</td>
+<td class="date-cell">-</td>
+</tr>
+<tr data-kk="3.4" data-unsur="5" data-subunsur="5.2" data-status="kosong">
+<td class="kk-cell">3.4</td>
+<td><span class="kode-badge" style="background:#ef4444;">5.2.1</span></td>
+<td class="param-text">Evaluasi terpisah dilakukan oleh pegawai dengan keahlian tertentu yang disyaratkan dan dapat melibatkan APIP atau audito</td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1bKcCdnX25UHF4J7w9c5gQEQzA3DAgOen" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/18ayi_pZkxVdfx-SC9x7FYlc7-drJJhYd" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1e7DtrZ2oHGXyc5FFi9Adcpqo2AdjTIp7" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1xFSApK3qwFh21kjNNnjMZokwkVy26tdE" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1jl-dN0PdwE-Czin8S0u7ZwuGbjHfmm4n" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="status-no">✗ Kosong</td>
+<td class="date-cell">-</td>
+</tr>
+<tr data-kk="3.4" data-unsur="5" data-subunsur="5.2" data-status="kosong">
+<td class="kk-cell">3.4</td>
+<td><span class="kode-badge" style="background:#ef4444;">5.2.2</span></td>
+<td class="param-text">Terdapat reviu independen terhadap proses manajemen risiko</td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1C56mkJV7019QuC_JSD8a2joJX_Ytauch" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/12_cNID21c259_f_JoFBQxSkPe9jgxO6z" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1oA6HLeWHsXs4x1gZKhhHIhYYhoCOQ6FZ" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1zbqIwTDOBhvM7u5yMdEuuSO-gkOfW4nx" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="grade-cell no" title=""><a href="https://drive.google.com/drive/folders/1V6vwz0EDK_kyPb1VqkKneJR_Np8kq7Ke" target="_blank" style="color:inherit;text-decoration:none;">✗</a><span class="file-count"></span></td>
+<td class="status-no">✗ Kosong</td>
+<td class="date-cell">-</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="filter-summary" id="filter-summary">Menampilkan 98 parameter</div>
+</div>
+<div class="section" id="detail">
+<h2 class="section-title"><span class="section-num">📁</span> Detail Dokumen per Grade</h2>
+<p class="section-subtitle">Daftar file dokumen untuk setiap folder grade yang memiliki dokumen</p>
+<div class="callout callout-warning">⚠️ Belum ada dokumen yang terupload di folder mana pun.</div>
+</div>
+</div>
+<div class="footer">
+<p><strong>📊 Monitoring Kelengkapan Dokumen Data Dukung — SPIP BMKG 2026</strong></p>
+<p>Generated: 14 Jul 2026, 20:55 | Total folder grade: 490 | Total dokumen: 0</p>
+<p style="font-size:11px;opacity:0.6;">Snapshot statis. Jalankan ulang script untuk update data.</p>
+</div>
+<script>
+// Subunsur options data
+const subunsurOptions = {};
+document.querySelectorAll('#checklist-body tr').forEach(function(tr) {
+    var kk = tr.dataset.kk;
+    var unsur = tr.dataset.unsur;
+    var su = tr.dataset.subunsur;
+    var key = kk + '|' + su;
+    if (!subunsurOptions[key]) {
+        subunsurOptions[key] = { kk: kk, unsur: unsur, kode: su };
+    }
+});
+
+// Populate subunsur filter
+function populateSubunsur() {
+    var kkFilter = document.getElementById('filter-kk').value;
+    var unsurFilter = document.getElementById('filter-unsur').value;
+    var select = document.getElementById('filter-subunsur');
+    select.innerHTML = '<option value="">Semua</option>';
+    for (var key in subunsurOptions) {
+        var opt = subunsurOptions[key];
+        if (kkFilter && opt.kk !== kkFilter) continue;
+        if (unsurFilter && opt.unsur !== unsurFilter) continue;
+        var option = document.createElement('option');
+        option.value = opt.kode;
+        option.text = opt.kode;
+        select.appendChild(option);
+    }
+}
+
+function applyFilter() {
+    var kk = document.getElementById('filter-kk').value;
+    var unsur = document.getElementById('filter-unsur').value;
+    var subunsur = document.getElementById('filter-subunsur').value;
+    var status = document.getElementById('filter-status').value;
+    var search = document.getElementById('filter-search').value.toLowerCase();
+
+    populateSubunsur();
+
+    var visible = 0;
+    var rows = document.querySelectorAll('#checklist-body tr');
+    rows.forEach(function(tr) {
+        var match = true;
+        if (kk && tr.dataset.kk !== kk) match = false;
+        if (unsur && tr.dataset.unsur !== unsur) match = false;
+        if (subunsur && tr.dataset.subunsur !== subunsur) match = false;
+        if (status && tr.dataset.status !== status) match = false;
+        if (search) {
+            var text = tr.textContent.toLowerCase();
+            if (!text.includes(search)) match = false;
+        }
+        if (match) {
+            tr.classList.remove('hidden');
+            visible++;
+        } else {
+            tr.classList.add('hidden');
+        }
+    });
+    document.getElementById('filter-summary').textContent = 'Menampilkan ' + visible + ' parameter';
+}
+
+function toggleSubunsur(el, kk, suKode) {
+    // Jump to checklist and filter by this subunsur
+    document.getElementById('filter-kk').value = kk;
+    populateSubunsur();
+    document.getElementById('filter-subunsur').value = suKode;
+    applyFilter();
+    document.getElementById('checklist').scrollIntoView({ behavior: 'smooth' });
+}
+
+// Initial populate
+populateSubunsur();
+</script>
+</body>
+</html>
